@@ -1,6 +1,20 @@
 # backend-server
 
 ## 📌 Branch 전략 ##
+## Branch
+
+본 프로젝트는 Gitflow 브랜치 전략을 따릅니다.
+
+<div align=center>
+    <img src="https://techblog.woowahan.com/wp-content/uploads/img/2017-10-30/git-flow_overall_graph.png" width=50% alt="브랜치 전략 설명 이미지"/>
+</div>
+
+모든 기능 개발은 다음 흐름을 따릅니다.
+
+1. 개발하고자 하는 기능에 대한 이슈를 등록하여 번호를 발급합니다.
+2. `develop` 브랜치로부터 분기하여 이슈 번호를 사용해 이름을 붙인 `feature` 브랜치를 만든 후 작업합니다.
+3. 작업이 완료되면 `develop` 브랜치에 풀 요청을 작성하고, 팀원의 동의를 얻으면 병합합니다.
+
 # Branch	종류
 - main	배포용 브랜치 (항상 안정적인 상태 유지, 허가없이 건들지 말기)
 - develop	기능 개발 통합 브랜치 (pull request하고 동료들에게 merge요청, 확인이 오래걸리면 스스로 merge)
@@ -37,4 +51,10 @@
 [improve]	향상이 있을 때 사용</br>
 [refactor]	전면 수정이 있을 때 사용</br>
 [test]	테스트 코드 추가 시 사용 </br>
+
+# Environment
+Java 17
+gradle-8.14.2
+springboot 3.4.7
+
 
