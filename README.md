@@ -6,7 +6,8 @@
 본 프로젝트는 Gitflow 브랜치 전략을 따릅니다.
 
 <div align=center>
-    <img src="https://techblog.woowahan.com/wp-content/uploads/img/2017-10-30/git-flow_overall_graph.png" width=50% alt="브랜치 전략 설명 이미지"/>
+    <img src="![image](https://github.com/user-attachments/assets/70ed9c4f-bd3c-49c5-a680-f7e39259d60e)
+" width=50% alt="브랜치 전략 설명 이미지"/>
 </div>
 
 모든 기능 개발은 다음 흐름을 따릅니다.
