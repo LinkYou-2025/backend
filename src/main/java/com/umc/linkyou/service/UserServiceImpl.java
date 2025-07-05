@@ -35,6 +35,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Users joinUser(UserRequestDTO.JoinDTO request){
+        if (userRepository.findByNickName(request.getNickName()).isPresent()) {
+            throw new UserHandler(ErrorStatus._DUPLICATE_NICKNAME);
+        }
+
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new UserHandler(ErrorStatus._DUPLICATE_JOIN_REQUEST);
         }
@@ -83,6 +87,13 @@ public class UserServiceImpl implements UserService {
                 user.getId(),
                 accessToken
         );
+    }
+
+    @Override
+    public void validateNickNameNotDuplicate(String nickname) {
+        if (userRepository.findByNickName(nickname).isPresent()) {
+            throw new UserHandler(ErrorStatus._DUPLICATE_NICKNAME);
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 package com.umc.linkyou.web.controller;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
+import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.service.UserService;
@@ -9,10 +11,7 @@ import com.umc.linkyou.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +30,11 @@ public class UserController {
     @Operation(summary = "유저 로그인 API",description = "유저가 로그인하는 API입니다.")
     public ApiResponse<UserResponseDTO.LoginResultDTO> login(@RequestBody @Valid UserRequestDTO.LoginRequestDTO request) {
         return ApiResponse.onSuccess(userService.loginUser(request));
+    }
+
+    @GetMapping("/check-nickname")
+    public ApiResponse<Void> checkNickname(@RequestParam String nickname) {
+        userService.validateNickNameNotDuplicate(nickname);
+        return ApiResponse.onSuccess(null);
     }
 }
