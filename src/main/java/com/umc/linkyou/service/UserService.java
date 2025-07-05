@@ -8,4 +8,6 @@ public interface UserService {
 
     Users joinUser(UserRequestDTO.JoinDTO request);
     UserResponseDTO.LoginResultDTO loginUser(UserRequestDTO.LoginRequestDTO request);
+
+    public void validateNickNameNotDuplicate(String nickname);
 }
