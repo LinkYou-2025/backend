@@ -11,8 +11,9 @@ import org.springframework.http.HttpStatus;
 public enum SuccessStatus implements BaseCode {
 
     // 일반적인 응답
-    _OK(HttpStatus.OK, "COMMON200", "성공입니다.");
-    // 로그인 및 회원가입
+    _OK(HttpStatus.OK, "COMMON200", "성공입니다."),
+    // 생성 관련 응답
+    _CREATED(HttpStatus.CREATED, "COMMON201", "성공적으로 생성(저장)되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
