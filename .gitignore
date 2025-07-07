@@ -37,3 +37,6 @@ out/
 .vscode/
 
 /src/main/generated/
+
+# application.properties
+/src/main/resources/application.properties
