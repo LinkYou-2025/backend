@@ -33,9 +33,9 @@ public class Linku {
     @Column(length = 200)
     private String memo;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)   // enum 이름->문자열
     @Column(length = 20)
-    private Emotion emotion; // enum 정의 필요
+    private Emotion emotion;
 
     @Column(length = 200)
     private String domain;
