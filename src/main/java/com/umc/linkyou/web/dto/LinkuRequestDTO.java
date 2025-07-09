@@ -1,7 +1,6 @@
 package com.umc.linkyou.web.dto;
 
 import com.umc.linkyou.domain.Category;
-import com.umc.linkyou.domain.enums.Emotion;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -17,7 +16,7 @@ public class LinkuRequestDTO {
     public static class LinkuCreateDTO {
         private String linku;
         private String memo;
-        private String emotion;
+        private Long emotionId;
     }
 
 }

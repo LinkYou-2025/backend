@@ -1,52 +1,45 @@
 package com.umc.linkyou.domain;
 
-import com.umc.linkyou.domain.enums.Emotion;
+import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "linku")
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Linku {
+public class Linku extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "linku_id")
     private Long linkuId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "linku_folder_id", nullable = false)
-    private LinkuFolder linkuFolder;
-
+    // category_id FK
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String linku;
-
-    @Column(length = 200)
-    private String memo;
-
-    @Enumerated(EnumType.STRING)   // enum 이름->문자열
-    @Column(length = 20)
+    // emotion_id FK
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emotion_id", nullable = false)
     private Emotion emotion;
 
-    @Column(length = 200)
-    private String domain;
+    // domain_id FK
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "domain_id", nullable = false)
+    private Domain domain;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "linku", columnDefinition = "text", nullable = false)
+    private String linku;
+
+    @Column(name = "memo", length = 200)
+    private String memo;
+
+    @Column(name = "image_url", columnDefinition = "text")
     private String imageUrl;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 }
-

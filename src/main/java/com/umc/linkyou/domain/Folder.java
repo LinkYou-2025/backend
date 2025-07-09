@@ -24,7 +24,6 @@ public class Folder {
     @Column(length = 255, nullable = false)
     private String folderName;
 
-    // 자기참조(부모 폴더)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_folder_id")
     private Folder parentFolder;
