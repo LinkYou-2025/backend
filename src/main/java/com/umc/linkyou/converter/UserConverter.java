@@ -43,7 +43,7 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.LoginResultDTO toLoginResultDTO(Integer userId, String accessToken) {
+    public static UserResponseDTO.LoginResultDTO toLoginResultDTO(Long userId, String accessToken) {
         return new UserResponseDTO.LoginResultDTO().builder()
                 .userId(userId)
                 .accessToken(accessToken)
