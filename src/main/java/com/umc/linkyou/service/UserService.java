@@ -23,4 +23,5 @@ public interface UserService {
 
     // 인증 코드 검증
     public EmailVerificationResponse verifyCode(String email, String authCode);
+
 }

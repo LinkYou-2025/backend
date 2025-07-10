@@ -22,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -139,7 +138,7 @@ public class UserServiceImpl implements UserService {
         Optional<Users> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             log.debug("MemberServiceImpl.checkDuplicatedEmail exception occur email: {}", email);
-            throw new UserHandler(ErrorStatus._USER_EXISTS);
+            throw new UserHandler(ErrorStatus._DUPLICATE_JOIN_REQUEST);
         }
     }
 
@@ -167,5 +166,6 @@ public class UserServiceImpl implements UserService {
         boolean authResult = redisAuthCode != null && redisAuthCode.equals(authCode);
         return EmailVerificationResponse.of(authResult);
     }
+
 }
 
