@@ -1,22 +1,15 @@
 package com.umc.linkyou.config.security.jwt;
 
 import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
-<<<<<<< HEAD
-=======
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.repository.UserRepository;
->>>>>>> ec6f03e64ead71dcad84aa4e11ecd4b46c35226e
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-<<<<<<< HEAD
-=======
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
->>>>>>> ec6f03e64ead71dcad84aa4e11ecd4b46c35226e
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
@@ -33,10 +26,8 @@ import java.util.Collections;
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
-<<<<<<< HEAD
-=======
+
     private final UserRepository userRepository;
->>>>>>> ec6f03e64ead71dcad84aa4e11ecd4b46c35226e
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
@@ -76,14 +67,11 @@ public class JwtTokenProvider {
         String email = claims.getSubject();
         String role = claims.get("role", String.class);
 
-<<<<<<< HEAD
-        User principal = new User(email, "", Collections.singleton(() -> role));
-=======
         // Users users = ... // 이메일로 Users 엔티티 조회
         Users users = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 가진 유저가 존재하지 않습니다: " + email));
         CustomUserDetails principal = new CustomUserDetails(users);
->>>>>>> ec6f03e64ead71dcad84aa4e11ecd4b46c35226e
+
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 

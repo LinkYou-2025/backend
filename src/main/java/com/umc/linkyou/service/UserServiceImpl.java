@@ -45,7 +45,6 @@ public class UserServiceImpl implements UserService {
 
     private final EmailService emailService;
 
-    private final RedisService redisService;
 
     @Value("${auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
@@ -125,8 +124,8 @@ public class UserServiceImpl implements UserService {
 
         try {
             emailService.sendEmail(toEmail, title, authCode);
-            redisService.setValues(AUTH_CODE_PREFIX + toEmail,
-                    authCode, Duration.ofMillis(this.authCodeExpirationMillis));
+            //redisService.setValues(AUTH_CODE_PREFIX + toEmail,
+            //        authCode, Duration.ofMillis(this.authCodeExpirationMillis));
             log.info("이메일 전송 완료: {}", toEmail);
         } catch (Exception e) {
             log.error("이메일 전송 실패: {}", toEmail, e);
@@ -161,10 +160,11 @@ public class UserServiceImpl implements UserService {
     // 인증 코드 검증
     public EmailVerificationResponse verifyCode(String email, String authCode) {
         //this.checkDuplicatedEmail(email);
-        String redisAuthCode = redisService.getValues(AUTH_CODE_PREFIX + email);
+        //String redisAuthCode = redisService.getValues(AUTH_CODE_PREFIX + email);
         //boolean authResult = redisService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode);
-        boolean authResult = redisAuthCode != null && redisAuthCode.equals(authCode);
-        return EmailVerificationResponse.of(authResult);
+        //boolean authResult = redisAuthCode != null && redisAuthCode.equals(authCode);
+        //return EmailVerificationResponse.of(authResult);
+        return null;
     }
 
 }
