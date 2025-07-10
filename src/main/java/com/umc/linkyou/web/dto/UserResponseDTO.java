@@ -14,6 +14,7 @@ public class UserResponseDTO {
     @AllArgsConstructor
     public static class JoinResultDTO{
         Long userId;
+
         LocalDateTime createdAt;
     }
 
@@ -23,6 +24,7 @@ public class UserResponseDTO {
     @AllArgsConstructor
     public static class LoginResultDTO{
         Long userId;
+
         String accessToken;
     }
 

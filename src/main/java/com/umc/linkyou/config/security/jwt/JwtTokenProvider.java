@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -27,6 +26,7 @@ import java.util.Collections;
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
+
     private final UserRepository userRepository;
 
     private Key getSigningKey() {
@@ -71,6 +71,7 @@ public class JwtTokenProvider {
         Users users = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 가진 유저가 존재하지 않습니다: " + email));
         CustomUserDetails principal = new CustomUserDetails(users);
+
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
