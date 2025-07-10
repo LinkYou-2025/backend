@@ -4,11 +4,13 @@ import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
+import com.umc.linkyou.domain.EmailVerification;
 import com.umc.linkyou.domain.Interests;
 import com.umc.linkyou.domain.Purposes;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.enums.Interest;
 import com.umc.linkyou.domain.enums.Purpose;
+import com.umc.linkyou.repository.EmailRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
@@ -24,7 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +46,8 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final EmailService emailService;
+
+    private final EmailRepository emailRepository;
 
 
     @Value("${auth-code-expiration-millis}")
@@ -124,6 +128,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             emailService.sendEmail(toEmail, title, authCode);
+            emailService.saveCode(toEmail, authCode);
             //redisService.setValues(AUTH_CODE_PREFIX + toEmail,
             //        authCode, Duration.ofMillis(this.authCodeExpirationMillis));
             log.info("이메일 전송 완료: {}", toEmail);
@@ -159,12 +164,25 @@ public class UserServiceImpl implements UserService {
 
     // 인증 코드 검증
     public EmailVerificationResponse verifyCode(String email, String authCode) {
-        //this.checkDuplicatedEmail(email);
-        //String redisAuthCode = redisService.getValues(AUTH_CODE_PREFIX + email);
-        //boolean authResult = redisService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode);
-        //boolean authResult = redisAuthCode != null && redisAuthCode.equals(authCode);
-        //return EmailVerificationResponse.of(authResult);
-        return null;
+        this.checkDuplicatedEmail(email);
+        EmailVerification verification = emailRepository.findByEmail(email)
+                .orElseThrow(() -> new UserHandler(ErrorStatus._VERIFICATION_FAILED));
+
+        // 만료 시간 체크
+        if (verification.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new UserHandler(ErrorStatus._EXPIRED_VERIFICATION_CODE);
+        }
+
+        // 코드 일치 여부 확인
+        boolean isMatch = verification.getVerificationCode().equals(authCode);
+
+        // 결과 반영
+        if (isMatch) {
+            verification.setIsVerified(true);
+            emailRepository.save(verification);
+        }
+
+        return EmailVerificationResponse.of(isMatch);
     }
 
 }
