@@ -28,6 +28,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _INTEREST_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "관심 분야를 선택해야합니다."),
     _NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 생성 실패"),
     _SEND_MAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 전송 실패")
+
+    //링큐 관련 에러
     ;
     private final HttpStatus httpStatus;
     private final String code;

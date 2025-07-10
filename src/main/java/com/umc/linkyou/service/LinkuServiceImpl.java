@@ -1,5 +1,8 @@
 package com.umc.linkyou.service;
 
+import com.umc.linkyou.apiPayload.ApiResponse;
+import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.converter.LinkuConverter;
 import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
@@ -9,9 +12,12 @@ import com.umc.linkyou.web.dto.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.LinkuResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -92,7 +98,26 @@ public class LinkuServiceImpl implements LinkuService {
                 .createdAt(linku.getCreatedAt())
                 .updatedAt(linku.getUpdatedAt())
                 .build();
-    }
+    } // 링큐 생성
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuIsExistDTO>> existLinku(Long userId, String url) {
+        Optional<UsersLinku> usersLinkuOpt = usersLinkuRepository.findByUserIdAndLinku_Linku(userId, url);
+
+        if (usersLinkuOpt.isPresent()) {
+            // 이미 존재하는 경우
+            Linku linku = usersLinkuOpt.get().getLinku();
+            LinkuResponseDTO.LinkuIsExistDTO dto = LinkuConverter.toLinkuIsExistDTO(userId, linku);
+            return ResponseEntity.ok(ApiResponse.onSuccess("이미 존재합니다.", dto));
+        } else {
+            // 존재하지 않는 경우
+            LinkuResponseDTO.LinkuIsExistDTO dto = LinkuConverter.toLinkuIsExistDTO(userId, null);
+            return ResponseEntity.ok(ApiResponse.onSuccess("존재하지 않습니다.", dto));
+        }
+    } //링크가 이미 존재하는 지 여부 판단
+
+
 
     // URL에서 도메인명만 추출 (예: https://blog.naver.com/abc → blog.naver.com)
     private static String extractDomainTail(String url) {
@@ -107,5 +132,8 @@ public class LinkuServiceImpl implements LinkuService {
             return null;
         }
     }
+
+
+
 }
 

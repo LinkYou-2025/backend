@@ -27,4 +27,16 @@ public class LinkuResponseDTO {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
+    @Setter
+    @Getter
+    @Builder
+    public static class LinkuIsExistDTO {
+        private boolean isExist;
+        private Long userId;
+        private Long linkuId;
+        private String memo;
+        private Long emotionId;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+    }
 }
