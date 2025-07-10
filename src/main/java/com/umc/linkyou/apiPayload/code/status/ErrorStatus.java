@@ -24,6 +24,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "사용자를 찾을 수 없습니다."),
     _PURPOSE_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "목적을 선택해야합니다."),
     _INTEREST_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "관심 분야를 선택해야합니다."),
+
+    //링큐 관련 에러
     ;
     private final HttpStatus httpStatus;
     private final String code;
