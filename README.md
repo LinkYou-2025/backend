@@ -9,7 +9,6 @@
 <div align=center>
     <img src="https://techblog.woowahan.com/wp-content/uploads/img/2017-10-30/git-flow_overall_graph.png" width=50% alt="브랜치 전략 설명 이미지"/>
 </div>
-</div>
 
 모든 기능 개발은 다음 흐름을 따릅니다.
 
