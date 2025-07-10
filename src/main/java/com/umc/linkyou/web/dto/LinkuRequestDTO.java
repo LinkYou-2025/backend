@@ -19,4 +19,11 @@ public class LinkuRequestDTO {
         private Long emotionId;
     }
 
+    @Setter
+    @Getter
+    @Builder
+    public static class LinkuUpdateDTO {
+
+    }
+
 }
