@@ -20,11 +20,15 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 로그인 회원가입 에러
     _DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "COMMON403", "중복된 닉네임입니다."),
+    _USER_EXISTS(HttpStatus.CONFLICT, "COMMON403", "중복된 이메일입니다."),
     _DUPLICATE_JOIN_REQUEST(HttpStatus.CONFLICT, "COMMON403", "중복된 이메일입니다."),
     _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "사용자를 찾을 수 없습니다."),
     _PURPOSE_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "목적을 선택해야합니다."),
     _INTEREST_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "관심 분야를 선택해야합니다."),
+    _NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 생성 실패"),
+    _SEND_MAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 전송 실패")
     ;
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
