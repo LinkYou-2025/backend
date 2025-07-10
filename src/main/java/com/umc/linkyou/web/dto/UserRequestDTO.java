@@ -54,5 +54,6 @@ public class UserRequestDTO {
         @Schema(example = "zaq123")
         @NotBlank(message = "패스워드는 필수입니다.")
         private String password;
+
     }
 }

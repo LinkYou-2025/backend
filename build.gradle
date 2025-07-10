@@ -63,6 +63,13 @@ dependencies {
 
 	// AWS S3 연동
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+// SMTP
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
+
+// JavaMail API 라이브러리
+	implementation 'com.sun.mail:jakarta.mail:2.0.1'
+
 }
 
 clean {
