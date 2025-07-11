@@ -1,9 +1,9 @@
 package com.umc.linkyou.service;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
-import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.converter.LinkuConverter;
 import com.umc.linkyou.domain.*;
+import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
 import com.umc.linkyou.repository.*;
@@ -12,7 +12,6 @@ import com.umc.linkyou.web.dto.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.LinkuResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
