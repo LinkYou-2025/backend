@@ -1,5 +1,6 @@
 package com.umc.linkyou.domain;
 
+import com.umc.linkyou.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Folder {
+public class Folder extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long folderId;
@@ -28,9 +29,5 @@ public class Folder {
     @JoinColumn(name = "parent_folder_id")
     private Folder parentFolder;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 }

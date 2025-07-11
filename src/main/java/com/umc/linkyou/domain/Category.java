@@ -17,6 +17,9 @@ public class Category {
     @Id
     private Long categoryId;
 
+    @Column(length = 20, nullable = false)
+    private String colorCode;
+
     @Column(length = 100)
     private String name;
 }
