@@ -57,4 +57,5 @@ public class UserController {
         EmailVerificationResponse response = userService.verifyCode(email, authCode);
         return ApiResponse.of(SuccessStatus._EMAIL_VERIFICATION_SUCCESS, response);
     }
+
 }

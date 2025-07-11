@@ -28,12 +28,12 @@ public class UserResponseDTO {
         String accessToken;
     }
 
-//    @Builder
-//    @Getter
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class UserInfoDTO{
-//
-//    }
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfoDTO{
+
+    }
 
 }
