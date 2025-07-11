@@ -1,5 +1,6 @@
 package com.umc.linkyou.domain;
 
+import com.umc.linkyou.domain.mapping.UsersLinku;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,4 +19,6 @@ public class Emotion {
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;
+
+
 }
