@@ -1,5 +1,6 @@
 INSERT INTO fcolor (color_code, color_name)
-VALUES ('#000000', '기본색상');
+VALUES ('#000000', '기본색상')
+    ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
 
 INSERT INTO category (category_id, color_code, category_name) VALUES (1, '#000000', '어학')
     ON DUPLICATE KEY UPDATE category_name = VALUES(category_name), color_code = VALUES(color_code);
