@@ -2,6 +2,9 @@ package com.umc.linkyou.domain;
 
 import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.enums.*;
+import com.umc.linkyou.domain.mapping.LinkuFolder;
+import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,6 +46,12 @@ public class Users extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL)
     private List<Interests> interests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UsersFolder> usersFoldersList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UsersCategoryColor> usersCategoryColorList = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
