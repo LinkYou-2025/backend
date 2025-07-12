@@ -39,9 +39,15 @@ public class LinkuServiceImpl implements LinkuService {
                 .orElseThrow(() -> new IllegalArgumentException("기타 카테고리 없음"));
 
         // 2. 감정: 없으면 '평온'(id=2)
-        Emotion emotion = (dto.getEmotionId() != null)
-                ? emotionRepository.findById(dto.getEmotionId()).orElseGet(() -> emotionRepository.findById(2L).orElseThrow())
-                : emotionRepository.findById(2L).orElseThrow();
+        Emotion emotion;
+        if (dto.getEmotionId() == null || dto.getEmotionId() <= 0) {
+            emotion = emotionRepository.findById(2L)
+                    .orElseThrow(() -> new IllegalArgumentException("기본 감정(평온) 없음"));
+        } else {
+            emotion = emotionRepository.findById(dto.getEmotionId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 감정 없음"));
+        }
+
 
         // 3. 도메인: linku에서 도메인명 추출 → 없으면 domain_id=21(기타)
         String domainTail = extractDomainTail(dto.getLinku());
@@ -53,51 +59,45 @@ public class LinkuServiceImpl implements LinkuService {
         Folder folder = folderRepository.findById(16L)
                 .orElseThrow(() -> new IllegalArgumentException("기타 폴더 없음"));
 
-        // 5. Linku 엔티티 생성
+        // 5. Linku 엔티티 생성 (memo, imageUrl, emotionId 없음)
         Linku linku = Linku.builder()
                 .category(category)
-                .emotion(emotion)
                 .domain(domain)
                 .linku(dto.getLinku())
-                .memo(dto.getMemo())
-                .imageUrl(null)
                 .build();
-
         linkuRepository.save(linku);
-        //linkuFolder 생성
-        LinkuFolder linkuFolder = LinkuFolder.builder()
-                .folder(folder)
-                .linku(linku)
-                .build();
-        linkuFolderRepository.save(linkuFolder);
 
-        // 6. UsersLinku 매핑
+        // 6. UsersLinku 매핑 (memo, imageUrl, emotionId 추가)
         Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
         UsersLinku usersLinku = UsersLinku.builder()
                 .user(users)
                 .linku(linku)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .emotion(emotion)
+                .memo(dto.getMemo())
+                .imageUrl(null)
                 .build();
         usersLinkuRepository.save(usersLinku);
 
-        // 7. DTO 변환 후 반환
-        return LinkuResponseDTO.LinkuResultDTO.builder()
-                .userId(userId)
-                .linkuId(linku.getLinkuId())
-                .linkuFolderId(linkuFolder.getLinkuFolderId())
-                .categoryId(category.getCategoryId())
-                .linku(linku.getLinku())
-                .memo(linku.getMemo())
-                .emotionId(emotion.getEmotionId())
-                .domain(domain.getName())
-                .domainImageUrl(domain.getImageUrl())
-                .linkuImageUrl(linku.getImageUrl())
-                .createdAt(linku.getCreatedAt())
-                .updatedAt(linku.getUpdatedAt())
+        // 7. LinkuFolder 생성 (linkuId → userLinkuId로 변경)
+        LinkuFolder linkuFolder = LinkuFolder.builder()
+                .folder(folder)
+                .usersLinku(usersLinku)
                 .build();
-    } // 링큐 생성
+        linkuFolderRepository.save(linkuFolder);
+
+        // 8. DTO 변환 후 반환 (LinkuConverter 사용)
+        return LinkuConverter.toLinkuResultDTO(
+                userId,
+                linku,
+                usersLinku,
+                linkuFolder,
+                category,
+                emotion,
+                domain
+        );
+    }
+    // 링큐 생성
 
     @Override
     @Transactional
@@ -107,7 +107,7 @@ public class LinkuServiceImpl implements LinkuService {
         if (usersLinkuOpt.isPresent()) {
             // 이미 존재하는 경우
             Linku linku = usersLinkuOpt.get().getLinku();
-            LinkuResponseDTO.LinkuIsExistDTO dto = LinkuConverter.toLinkuIsExistDTO(userId, linku);
+            LinkuResponseDTO.LinkuIsExistDTO dto = LinkuConverter.toLinkuIsExistDTO(userId, usersLinkuOpt.orElse(null));
             return ResponseEntity.ok(ApiResponse.onSuccess("이미 존재합니다.", dto));
         } else {
             // 존재하지 않는 경우

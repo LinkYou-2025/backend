@@ -6,13 +6,13 @@ import com.umc.linkyou.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @Entity
 @Table(name = "linku_folder")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class LinkuFolder  extends BaseEntity {
+public class LinkuFolder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "linku_folder_id")
     private Long linkuFolderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,7 +20,9 @@ public class LinkuFolder  extends BaseEntity {
     private Folder folder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "linku_id", nullable = false)
-    private Linku linku;
+    @JoinColumn(name = "user_linku_id", nullable = false)
+    private UsersLinku usersLinku;
+
 }
+
 

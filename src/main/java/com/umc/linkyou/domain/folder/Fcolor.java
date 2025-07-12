@@ -20,7 +20,7 @@ public class Fcolor {
     @Column(length = 20, nullable = false)
     private String colorCode;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 50, nullable = false)
     private String colorName;
 
     @OneToMany(mappedBy = "fcolor")

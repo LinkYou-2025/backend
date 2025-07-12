@@ -35,6 +35,6 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Folder> folderList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "fcolor")
+    @OneToMany(mappedBy = "category")
     private List<UsersCategoryColor> usersCategoryColorList = new ArrayList<>();
 }
