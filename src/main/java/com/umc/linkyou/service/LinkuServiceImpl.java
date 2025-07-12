@@ -2,6 +2,7 @@ package com.umc.linkyou.service;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.converter.LinkuConverter;
 import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
@@ -35,32 +36,29 @@ public class LinkuServiceImpl implements LinkuService {
     @Override
     @Transactional
     public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto) {
-        // 1. 카테고리: 16번(기타)
         Category category = categoryRepository.findById(16L)
-                .orElseThrow(() -> new IllegalArgumentException("기타 카테고리 없음"));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
 
-        // 2. 감정: 없으면 '평온'(id=2)
         Emotion emotion;
         if (dto.getEmotionId() == null || dto.getEmotionId() <= 0) {
             emotion = emotionRepository.findById(2L)
-                    .orElseThrow(() -> new IllegalArgumentException("기본 감정(평온) 없음"));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
         } else {
             emotion = emotionRepository.findById(dto.getEmotionId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 감정 없음"));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
         }
 
-
-        // 3. 도메인: linku에서 도메인명 추출 → 없으면 domain_id=21(기타)
         String domainTail = extractDomainTail(dto.getLinku());
         Domain domain = (domainTail != null)
-                ? domainRepository.findByDomainTail(domainTail).orElseGet(() -> domainRepository.findById(21L).orElseThrow())
-                : domainRepository.findById(21L).orElseThrow();
+                ? domainRepository.findByDomainTail(domainTail)
+                .orElseGet(() -> domainRepository.findById(21L)
+                        .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND)))
+                : domainRepository.findById(21L)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
 
-        // 4. 시딩한 기타 폴더 가져옴
         Folder folder = folderRepository.findById(16L)
-                .orElseThrow(() -> new IllegalArgumentException("기타 폴더 없음"));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
-        // 5. Linku 엔티티 생성 (memo, imageUrl, emotionId 없음)
         Linku linku = Linku.builder()
                 .category(category)
                 .domain(domain)
@@ -68,9 +66,8 @@ public class LinkuServiceImpl implements LinkuService {
                 .build();
         linkuRepository.save(linku);
 
-        // 6. UsersLinku 매핑 (memo, imageUrl, emotionId 추가)
         Users users = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
         UsersLinku usersLinku = UsersLinku.builder()
                 .user(users)
                 .linku(linku)
@@ -80,24 +77,17 @@ public class LinkuServiceImpl implements LinkuService {
                 .build();
         usersLinkuRepository.save(usersLinku);
 
-        // 7. LinkuFolder 생성 (linkuId → userLinkuId로 변경)
         LinkuFolder linkuFolder = LinkuFolder.builder()
                 .folder(folder)
                 .usersLinku(usersLinku)
                 .build();
         linkuFolderRepository.save(linkuFolder);
 
-        // 8. DTO 변환 후 반환 (LinkuConverter 사용)
         return LinkuConverter.toLinkuResultDTO(
-                userId,
-                linku,
-                usersLinku,
-                linkuFolder,
-                category,
-                emotion,
-                domain
+                userId, linku, usersLinku, linkuFolder, category, emotion, domain
         );
     }
+
     // 링큐 생성
 
     @Override

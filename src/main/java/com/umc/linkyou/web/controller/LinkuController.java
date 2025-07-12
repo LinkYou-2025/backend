@@ -21,15 +21,17 @@ public class LinkuController {
     private final LinkuService linkuService;
 
     @PostMapping("/")
-    public ApiResponse<LinkuResponseDTO.LinkuResultDTO> createLinku(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody LinkuRequestDTO.LinkuCreateDTO linkuCreateDTO) {
+    public ApiResponse<LinkuResponseDTO.LinkuResultDTO> createLinku(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody LinkuRequestDTO.LinkuCreateDTO linkuCreateDTO) {
         if (userDetails == null) {
             return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
         }
-
         Long userId = userDetails.getUsers().getId();
         LinkuResponseDTO.LinkuResultDTO result = linkuService.createLinku(userId, linkuCreateDTO);
-        return ApiResponse.onSuccess(result); //responseDTO다시 써야 함
-    } //linku 생성 -> refactoring 필요
+        return ApiResponse.onSuccess(result);
+    }
+    //linku 생성
 
     @GetMapping("/exist")
     public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuIsExistDTO>> existLinku(
