@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("api/users")
 public class UserController {
 
     private final UserService userService;
@@ -56,6 +56,12 @@ public class UserController {
                                                              @RequestParam("code") String authCode) {
         EmailVerificationResponse response = userService.verifyCode(email, authCode);
         return ApiResponse.of(SuccessStatus._EMAIL_VERIFICATION_SUCCESS, response);
+    }
+
+    // 마이페이지 조회
+    @GetMapping("/{userId}")
+    public ApiResponse<UserResponseDTO.UserInfoDTO> getUserInfo(@PathVariable("userId") Long userId) {
+        return ApiResponse.onSuccess(userService.userInfo(userId));
     }
 
 }

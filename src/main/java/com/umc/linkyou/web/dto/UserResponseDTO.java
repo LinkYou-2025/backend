@@ -33,6 +33,14 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserInfoDTO{
+        String nickname;
+
+        Long myLinku; // 나의 링크
+
+        Long myFolder; // 나의 폴더
+
+        // 내가 만든 ai 링크
+        // Long myAiLinku;
 
     }
 

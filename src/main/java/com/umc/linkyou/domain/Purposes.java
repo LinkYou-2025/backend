@@ -29,7 +29,16 @@ public class Purposes {
     public Purposes(Purpose enumPurpose, Users newUser) {
         this.purpose = enumPurpose;
         this.user = newUser;
+        this.selectedAt = LocalDateTime.now();
         user.getPurposes().add(this);
+    }
+
+    @PrePersist
+    public void prePersist() {
+        System.out.println("[PREPERSIST] selectedAt = " + this.selectedAt);
+        if (this.selectedAt == null) {
+            this.selectedAt = LocalDateTime.now();
+        }
     }
 
 }

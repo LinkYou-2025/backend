@@ -8,13 +8,17 @@ import com.umc.linkyou.web.dto.UserResponseDTO;
 public interface UserService {
 
     Users joinUser(UserRequestDTO.JoinDTO request);
+
     UserResponseDTO.LoginResultDTO loginUser(UserRequestDTO.LoginRequestDTO request);
 
-    public void validateNickNameNotDuplicate(String nickname);
+    void validateNickNameNotDuplicate(String nickname);
+
+    // 마이페이지 조회
+    UserResponseDTO.UserInfoDTO userInfo(Long id);
 
     // 이메일 인증
     // 인증 코드 전송
-    public void sendCode(String toEmail);
+    void sendCode(String toEmail);
 
     // 인증 코드 생성
     private String createCode() {
@@ -22,6 +26,6 @@ public interface UserService {
     }
 
     // 인증 코드 검증
-    public EmailVerificationResponse verifyCode(String email, String authCode);
+    EmailVerificationResponse verifyCode(String email, String authCode);
 
 }

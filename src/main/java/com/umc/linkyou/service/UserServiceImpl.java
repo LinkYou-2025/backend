@@ -11,6 +11,7 @@ import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.enums.Interest;
 import com.umc.linkyou.domain.enums.Purpose;
 import com.umc.linkyou.repository.EmailRepository;
+import com.umc.linkyou.repository.UserQueryRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
 
     private final EmailRepository emailRepository;
+    private final UserQueryRepository userQueryRepository;
 
 
     @Value("${auth-code-expiration-millis}")
@@ -84,6 +86,9 @@ public class UserServiceImpl implements UserService {
                     return new Interests(enumInterest, newUser);
                 })
                 .toList();
+
+        newUser.setPurposes(purposeList);
+        newUser.setInterests(interestList);
 
         return userRepository.save(newUser);
     }
@@ -185,5 +190,16 @@ public class UserServiceImpl implements UserService {
         return EmailVerificationResponse.of(isMatch);
     }
 
+    // 마이페이지 조회
+    @Override
+    public UserResponseDTO.UserInfoDTO userInfo(Long userId){
+        String nickName = userQueryRepository.findNicknameByUserId(userId);
+        Long linkCount = userQueryRepository.countLinksByUserId(userId);
+        Long folderCount = userQueryRepository.countFoldersByUserId(userId);
+
+        return UserConverter.toUserInfoDTO(
+                nickName, linkCount, folderCount
+        );
+    }
 }
 
