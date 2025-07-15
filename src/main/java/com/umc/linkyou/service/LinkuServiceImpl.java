@@ -20,7 +20,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -88,19 +93,34 @@ public class LinkuServiceImpl implements LinkuService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuIsExistDTO>> existLinku(Long userId, String url) {
+
+        // 1. 영상 링크 차단
+        if (isVideoLink(url)) {
+            ErrorStatus error = ErrorStatus._LINKU_VIDEO_NOT_ALLOWED;
+            return ResponseEntity.status(error.getHttpStatus())
+                    .body(ApiResponse.onFailure(error.getCode(), error.getMessage(), null));
+        }
+
+        // 2. 유효하지 않은 링크 차단
+        if (!isValidUrl(url)) {
+            ErrorStatus error = ErrorStatus._LINKU_INVALID_URL;
+            return ResponseEntity.status(error.getHttpStatus())
+                    .body(ApiResponse.onFailure(error.getCode(), error.getMessage(), null));
+        }
+
+        // 3. 기존에 링크 저장 여부 확인
         Optional<UsersLinku> usersLinkuOpt = usersLinkuRepository.findByUserIdAndLinku_Linku(userId, url);
 
         if (usersLinkuOpt.isPresent()) {
-            // 이미 존재하는 경우
             Linku linku = usersLinkuOpt.get().getLinku();
             LinkuResponseDTO.LinkuIsExistDTO dto = LinkuConverter.toLinkuIsExistDTO(userId, usersLinkuOpt.orElse(null));
-            return ResponseEntity.ok(ApiResponse.onSuccess("이미 존재합니다.", dto));
+            return ResponseEntity.ok(ApiResponse.onSuccess("링큐가 이미 존재합니다.", dto));
         } else {
-            // 존재하지 않는 경우
             LinkuResponseDTO.LinkuIsExistDTO dto = LinkuConverter.toLinkuIsExistDTO(userId, null);
-            return ResponseEntity.ok(ApiResponse.onSuccess("존재하지 않습니다.", dto));
+            return ResponseEntity.ok(ApiResponse.onSuccess("링큐가 존재하지 않습니다.", dto));
         }
-    } //링크가 이미 존재하는 지 여부 판단
+    }
+    //링크가 이미 존재하는 지 여부 판단
 
 
 
@@ -118,6 +138,36 @@ public class LinkuServiceImpl implements LinkuService {
         }
     }
 
+    //
+    private boolean isVideoLink(String url) {
+        // 영상 플랫폼 도메인 리스트
+        List<String> videoDomains = List.of(
+                "youtube.com", "youtu.be", "vimeo.com", "tiktok.com", "dailymotion.com", "kakao.tv", "navertv", "tv.kakao.com"
+        );
+
+        try {
+            URI uri = new URI(url);
+            String host = uri.getHost();
+            if (host == null) return false;
+
+            return videoDomains.stream().anyMatch(host::contains);
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+    private boolean isValidUrl(String url) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("HEAD"); // 본문 없이 빠르게 존재 여부 확인
+            connection.setConnectTimeout(3000); // 3초 제한
+            connection.setReadTimeout(3000);
+
+            int responseCode = connection.getResponseCode();
+            return responseCode >= 200 && responseCode < 400; // 2xx or 3xx는 유효
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 
 }
