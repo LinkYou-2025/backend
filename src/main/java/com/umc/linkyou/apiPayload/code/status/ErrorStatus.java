@@ -29,6 +29,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 생성 실패"),
     _SEND_MAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 전송 실패"),
 
+    //링큐 관련 코드
+    _LINKU_VIDEO_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "LINKU4001", "영상 링크는 저장할 수 없습니다."),
+    _LINKU_INVALID_URL(HttpStatus.BAD_REQUEST, "LINKU4002", "유효하지 않은 링크입니다."),
+
     //카테고리(폴더종류) 관련 에러
     _CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY4041", "해당하는 카테고리를 찾을 수 없습니다."),
     //감정 관련 에러
@@ -37,6 +41,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _DOMAIN_NOT_FOUND(HttpStatus.NOT_FOUND, "DOMAIN4041", "해당하는 도메인을 찾을 수 없습니다."),
     //폴더 관련 에러
     _FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER4041", "해당하는 폴더를 찾을 수 없습니다."),
+
+
     ;
     private final HttpStatus httpStatus;
     private final String code;

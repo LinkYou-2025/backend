@@ -46,10 +46,7 @@ public class LinkuController {
         Long userId = userDetails.getUsers().getId();
         LinkuResponseDTO.LinkuResultDTO result = linkuService.createLinku(userId, linkuCreateDTO, image);
         return ApiResponse.onSuccess(result);
-    }
-
-
-    //linku 생성
+    }//linku 생성
 
     @GetMapping("/exist")
     public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuIsExistDTO>> existLinku(
