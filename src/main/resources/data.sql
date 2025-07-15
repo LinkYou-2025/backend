@@ -105,86 +105,29 @@ INSERT INTO emotion (emotion_id, name) VALUES (6, '분노') ON DUPLICATE KEY UPD
 
 
 
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (1, '네이버', 'naver.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (2, '네이버 블로그', 'blog.naver.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (3, '네이버 카페', 'cafe.naver.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (4, '네이버 지식인', 'kin.naver.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (5, '네이버 쇼핑', 'shopping.naver.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (6, '깃허브', 'github.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (7, '링크드인', 'linkedin.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (8, '티스토리', 'tistory.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (9, '구글', 'google.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (10, '뉴욕타임즈', 'nytimes.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (11, '브런치스토리', 'brunch.co.kr', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (12, '벨로그', 'velog.io', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (13, '다음', 'daum.net', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (14, '잡코리아', 'jobkorea.co.kr', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (15, '원티드', 'wanted.co.kr', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (16, '무신사', 'musinsa.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (17, '11번가', '11st.co.kr', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (18, '인스타그램', 'instagram.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (19, '트위터 (X)', 'twitter.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (20, '페이스북', 'facebook.com', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url)
-VALUES (21, '기타', 'invalid', NULL)
-    ON DUPLICATE KEY UPDATE name = VALUES(name), domain_tail = VALUES(domain_tail), image_url = VALUES(image_url);
+INSERT INTO domain (domain_id, name, domain_tail, image_url) VALUES
+(1, 'invalid', 'invalid', NULL),
+(2, 'blog.naver', 'blog.naver.com', NULL),
+(3, 'cafe.naver', 'cafe.naver.com', NULL),
+(4, 'kin.naver', 'kin.naver.com', NULL),
+(5, 'shopping.naver', 'shopping.naver.com', NULL),
+(6, 'github', 'github.com', NULL),
+(7, 'linkedin', 'linkedin.com', NULL),
+(8, 'tistory', 'tistory.com', NULL),
+(9, 'google', 'google.com', NULL),
+(10, 'nytimes', 'nytimes.com', NULL),
+(11, 'brunch', 'brunch.co.kr', NULL),
+(12, 'velog', 'velog.io', NULL),
+(13, 'daum', 'daum.net', NULL),
+(14, 'jobkorea', 'jobkorea.co.kr', NULL),
+(15, 'wanted', 'wanted.co.kr', NULL),
+(16, 'musinsa', 'musinsa.com', NULL),
+(17, '11st', '11st.co.kr', NULL),
+(18, 'instagram', 'instagram.com', NULL),
+(19, 'twitter', 'twitter.com', NULL),
+(20, 'facebook', 'facebook.com', NULL),
+(21, 'naver', 'naver.com', NULL)
+    ON DUPLICATE KEY UPDATE
+                         name = VALUES(name),
+                         domain_tail = VALUES(domain_tail),
+                         image_url = VALUES(image_url);

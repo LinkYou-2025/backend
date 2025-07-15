@@ -2,6 +2,9 @@ package com.umc.linkyou.service;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.exception.GeneralException;
+import com.umc.linkyou.awsS3.AwsS3Service;
+import com.umc.linkyou.converter.AwsS3Converter;
 import com.umc.linkyou.converter.LinkuConverter;
 import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -31,74 +35,55 @@ public class LinkuServiceImpl implements LinkuService {
     private final UsersLinkuRepository usersLinkuRepository;
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
+    private final AwsS3Service awsS3Service;
 
     @Override
     @Transactional
-    public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto) {
-        // 1. 카테고리: 16번(기타)
+    public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto, MultipartFile image) {
         Category category = categoryRepository.findById(16L)
-                .orElseThrow(() -> new IllegalArgumentException("기타 카테고리 없음"));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
 
-        // 2. 감정: 없으면 '평온'(id=2)
-        Emotion emotion;
-        if (dto.getEmotionId() == null || dto.getEmotionId() <= 0) {
-            emotion = emotionRepository.findById(2L)
-                    .orElseThrow(() -> new IllegalArgumentException("기본 감정(평온) 없음"));
-        } else {
-            emotion = emotionRepository.findById(dto.getEmotionId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 감정 없음"));
-        }
+        Emotion emotion = (dto.getEmotionId() == null || dto.getEmotionId() <= 0)
+                ? emotionRepository.findById(2L)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND))
+                : emotionRepository.findById(dto.getEmotionId())
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
 
-
-        // 3. 도메인: linku에서 도메인명 추출 → 없으면 domain_id=21(기타)
         String domainTail = extractDomainTail(dto.getLinku());
+        //도메인 가져오기
         Domain domain = (domainTail != null)
-                ? domainRepository.findByDomainTail(domainTail).orElseGet(() -> domainRepository.findById(21L).orElseThrow())
-                : domainRepository.findById(21L).orElseThrow();
-
-        // 4. 시딩한 기타 폴더 가져옴
+                ? domainRepository.findByDomainTail(domainTail)
+                .orElseGet(() -> domainRepository.findById(1L)
+                        .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND)))
+                : domainRepository.findById(1L)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
+        //중분료 폴더 가져오기
         Folder folder = folderRepository.findById(16L)
-                .orElseThrow(() -> new IllegalArgumentException("기타 폴더 없음"));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
-        // 5. Linku 엔티티 생성 (memo, imageUrl, emotionId 없음)
-        Linku linku = Linku.builder()
-                .category(category)
-                .domain(domain)
-                .linku(dto.getLinku())
-                .build();
+        //새로운 링크 생성하기
+        Linku linku = LinkuConverter.toLinku(dto.getLinku(), category, domain);
         linkuRepository.save(linku);
 
-        // 6. UsersLinku 매핑 (memo, imageUrl, emotionId 추가)
-        Users users = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
-        UsersLinku usersLinku = UsersLinku.builder()
-                .user(users)
-                .linku(linku)
-                .emotion(emotion)
-                .memo(dto.getMemo())
-                .imageUrl(null)
-                .build();
+        //요청 보낸 사용자 저장
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+
+        //image저장
+        String imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
+
+        //usersLinku생성
+        UsersLinku usersLinku = LinkuConverter.toUsersLinku(user, linku, emotion, dto.getMemo(),imageUrl);
         usersLinkuRepository.save(usersLinku);
 
-        // 7. LinkuFolder 생성 (linkuId → userLinkuId로 변경)
-        LinkuFolder linkuFolder = LinkuFolder.builder()
-                .folder(folder)
-                .usersLinku(usersLinku)
-                .build();
+        LinkuFolder linkuFolder = LinkuConverter.toLinkuFolder(folder, usersLinku);
         linkuFolderRepository.save(linkuFolder);
 
-        // 8. DTO 변환 후 반환 (LinkuConverter 사용)
         return LinkuConverter.toLinkuResultDTO(
-                userId,
-                linku,
-                usersLinku,
-                linkuFolder,
-                category,
-                emotion,
-                domain
+                userId, linku, usersLinku, linkuFolder, category, emotion, domain
         );
     }
-    // 링큐 생성
+// 링큐 생성
 
     @Override
     @Transactional
