@@ -1,10 +1,9 @@
 package com.umc.linkyou.domain;
 
+import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "folder")

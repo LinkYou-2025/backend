@@ -1,12 +1,7 @@
 package com.umc.linkyou.web.dto;
 
-import com.umc.linkyou.domain.Category;
-import com.umc.linkyou.domain.mapping.LinkuFolder;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 public class LinkuRequestDTO {
     @Setter

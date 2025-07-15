@@ -5,7 +5,7 @@ import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.awsS3.AwsS3Service;
 import com.umc.linkyou.converter.AwsS3Converter;
 import com.umc.linkyou.converter.DomainConverter;
-import com.umc.linkyou.domain.Domain;
+import com.umc.linkyou.domain.classification.Domain;
 import com.umc.linkyou.repository.*;
 import com.umc.linkyou.web.dto.DomainDTO;
 import jakarta.transaction.Transactional;

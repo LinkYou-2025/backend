@@ -1,6 +1,5 @@
 package com.umc.linkyou.converter;
 
-import com.umc.linkyou.domain.Domain;
 import com.umc.linkyou.web.dto.DomainDTO;
 
 public class DomainConverter {
