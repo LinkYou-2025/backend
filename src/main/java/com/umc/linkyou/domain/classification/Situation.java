@@ -1,24 +1,21 @@
-package com.umc.linkyou.domain;
+package com.umc.linkyou.domain.classification;
 
-import com.umc.linkyou.domain.mapping.UsersLinku;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "emotion")
+@Table(name = "situation")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Emotion {
-
+public class Situation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "emotion_id")
-    private Long emotionId;
+    @Column(name = "situation_id")
+    private Long id;
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;
-
-
 }

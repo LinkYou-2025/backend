@@ -1,8 +1,5 @@
 package com.umc.linkyou.web.dto;
 
-import com.umc.linkyou.domain.Category;
-import com.umc.linkyou.domain.mapping.LinkuFolder;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

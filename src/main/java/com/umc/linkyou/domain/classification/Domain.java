@@ -1,4 +1,4 @@
-package com.umc.linkyou.domain;
+package com.umc.linkyou.domain.classification;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,31 +1,31 @@
-package com.umc.linkyou.domain;
+package com.umc.linkyou.domain.classification;
 
-import com.umc.linkyou.domain.enums.Interest;
+import com.umc.linkyou.domain.Users;
+import com.umc.linkyou.domain.enums.Purpose;
 import jakarta.persistence.*;
 
 @Entity
-public class Interests {
-
+public class Purposes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Interest interest;
+    private Purpose purpose;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // 외래키 설정
     private Users user;
 
-    public Interests() {
+    public Purposes() {
 
     }
 
-    public Interests(Interest enumInterest, Users newUser) {
-        this.interest = enumInterest;
+    public Purposes(Purpose enumPurpose, Users newUser) {
+        this.purpose = enumPurpose;
         this.user = newUser;
-        user.getInterests().add(this);
+        user.getPurposes().add(this);
     }
 
 }
