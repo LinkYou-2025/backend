@@ -53,9 +53,9 @@ public class LinkuServiceImpl implements LinkuService {
         //도메인 가져오기
         Domain domain = (domainTail != null)
                 ? domainRepository.findByDomainTail(domainTail)
-                .orElseGet(() -> domainRepository.findById(21L)
+                .orElseGet(() -> domainRepository.findById(1L)
                         .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND)))
-                : domainRepository.findById(21L)
+                : domainRepository.findById(1L)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
         //중분료 폴더 가져오기
         Folder folder = folderRepository.findById(16L)

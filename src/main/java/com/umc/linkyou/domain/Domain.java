@@ -1,9 +1,6 @@
 package com.umc.linkyou.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -17,6 +14,7 @@ public class Domain {
 
     @Id
     @Column(name = "domain_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long domainId;
 
     @Column(name = "name", length = 100, nullable = false)
