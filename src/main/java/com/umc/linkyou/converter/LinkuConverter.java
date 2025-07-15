@@ -1,14 +1,21 @@
 package com.umc.linkyou.converter;
 
-import com.umc.linkyou.domain.Category;
-import com.umc.linkyou.domain.Domain;
-import com.umc.linkyou.domain.Emotion;
-import com.umc.linkyou.domain.Linku;
+import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
+import com.umc.linkyou.web.dto.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.LinkuResponseDTO;
 
 public class LinkuConverter {
+    // Converter: RequestParam으로 받은 데이터 -> LinkuCreateDTO 생성
+    public static LinkuRequestDTO.LinkuCreateDTO toLinkuCreateDTO(String linku, String memo, Long emotionId) {
+        return LinkuRequestDTO.LinkuCreateDTO.builder()
+                .linku(linku)
+                .memo(memo)
+                .emotionId(emotionId)
+                .build();
+    }
+
     // Linku생성 → LinkuResultDTO 변환
     public static LinkuResponseDTO.LinkuResultDTO toLinkuResultDTO(
             Long userId,
@@ -57,6 +64,33 @@ public class LinkuConverter {
                 .emotionId(usersLinku.getEmotion().getEmotionId())
                 .createdAt(usersLinku.getLinku().getCreatedAt())
                 .updatedAt(usersLinku.getLinku().getUpdatedAt())
+                .build();
+    }
+    // UsersLinku 생성
+    public static UsersLinku toUsersLinku(Users user, Linku linku, Emotion emotion, String memo, String imageUrl) {
+        return UsersLinku.builder()
+                .user(user)
+                .linku(linku)
+                .emotion(emotion)
+                .memo(memo)
+                .imageUrl(imageUrl)
+                .build();
+    }
+
+    //LinkuFolder 생성
+    public static LinkuFolder toLinkuFolder(Folder folder, UsersLinku usersLinku) {
+        return LinkuFolder.builder()
+                .folder(folder)
+                .usersLinku(usersLinku)
+                .build();
+    }
+
+    // Linku 생성
+    public static Linku toLinku(String linkuUrl, Category category, Domain domain) {
+        return Linku.builder()
+                .linku(linkuUrl)
+                .category(category)
+                .domain(domain)
                 .build();
     }
 
