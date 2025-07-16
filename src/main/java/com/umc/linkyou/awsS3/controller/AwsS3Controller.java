@@ -2,6 +2,7 @@ package com.umc.linkyou.awsS3.controller;
 
 import com.umc.linkyou.awsS3.AwsS3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,7 @@ public class AwsS3Controller {
     private final AwsS3Service awsS3Service;
 
     // 파일 업로드
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile multipartFile) {
         String fileUrl = awsS3Service.uploadFile(multipartFile);
         return ResponseEntity.ok(fileUrl);

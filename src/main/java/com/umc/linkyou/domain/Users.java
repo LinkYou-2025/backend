@@ -1,5 +1,7 @@
 package com.umc.linkyou.domain;
 
+import com.umc.linkyou.domain.classification.Interests;
+import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.enums.*;
 import jakarta.persistence.*;

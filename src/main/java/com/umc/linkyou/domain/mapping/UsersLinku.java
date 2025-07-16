@@ -1,13 +1,11 @@
 package com.umc.linkyou.domain.mapping;
 
-import com.umc.linkyou.domain.Emotion;
+import com.umc.linkyou.domain.classification.Emotion;
 import com.umc.linkyou.domain.Linku;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
