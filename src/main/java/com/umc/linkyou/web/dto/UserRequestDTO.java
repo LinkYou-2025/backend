@@ -32,9 +32,9 @@ public class UserRequestDTO {
         @NotNull
         Integer gender;
 
-        @Schema(example = "0")
+        @Schema(example = "1")
         @NotNull
-        Integer job;
+        Long jobId;
 
         @Schema(example = "[\"CAREER\", \"STUDY\"]")
         List<String> purposeList;

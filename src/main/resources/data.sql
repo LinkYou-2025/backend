@@ -131,3 +131,63 @@ INSERT INTO domain (domain_id, name, domain_tail, image_url) VALUES
                          name = VALUES(name),
                          domain_tail = VALUES(domain_tail),
                          image_url = VALUES(image_url);
+
+INSERT INTO job (job_id, name) VALUES
+                                   (1, '고등학생'),
+                                   (2, '대학생'),
+                                   (3, '직장인'),
+                                   (4, '자영업자'),
+                                   (5, '프리랜서'),
+                                   (6, '취준생')
+    ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+INSERT INTO situation (situation_id, name) VALUES
+                                               (1, '통학 중'),
+                                               (2, '공부 중'),
+                                               (3, '식사 중'),
+                                               (4, '시험 준비'),
+                                               (5, '친구랑'),
+                                               (6, '쇼핑 중'),
+                                               (7, '휴식 중'),
+                                               (8, '자기 전'),
+                                               (9, '과제 중'),
+                                               (10, '알바 중'),
+                                               (11, '트렌드 확인'),
+                                               (12, '데이트 중'),
+                                               (13, '출퇴근'),
+                                               (14, '업무 중'),
+                                               (15, '커리어 고민'),
+                                               (16, '업무 준비 중'),
+                                               (17, '작업 중'),
+                                               (18, '운동 중'),
+                                               (19, '자소서 작성'),
+                                               (20, '면접 준비'),
+                                               (21, '요리 중')
+    ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+-- 고등학생(1)
+INSERT INTO situation_job (situation_id, job_id) VALUES
+                                                     (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1);
+
+-- 대학생(2)
+INSERT INTO situation_job (situation_id, job_id) VALUES
+                                                     (9, 2), (1, 2), (6, 2), (10, 2), (11, 2), (12, 2), (7, 2), (8, 2);
+
+-- 직장인(3)
+INSERT INTO situation_job (situation_id, job_id) VALUES
+                                                     (13, 3), (11, 3), (14, 3), (15, 3), (6, 3), (12, 3), (7, 3), (8, 3);
+
+-- 자영업자(4)
+INSERT INTO situation_job (situation_id, job_id) VALUES
+                                                     (13, 4), (16, 4), (12, 4), (3, 4), (6, 4), (11, 4), (7, 4), (8, 4);
+
+-- 프리랜서(5)
+INSERT INTO situation_job (situation_id, job_id) VALUES
+                                                     (17, 5), (6, 5), (11, 5), (12, 5), (18, 5), (3, 5), (7, 5), (8, 5);
+
+-- 취준생(6)
+INSERT INTO situation_job (situation_id, job_id) VALUES
+                                                     (19, 6), (20, 6), (21, 6), (11, 6), (6, 6), (18, 6), (7, 6), (8, 6);
+
+
+

@@ -33,6 +33,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _LINKU_VIDEO_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "LINKU4001", "영상 링크는 저장할 수 없습니다."),
     _LINKU_INVALID_URL(HttpStatus.BAD_REQUEST, "LINKU4002", "유효하지 않은 링크입니다."),
 
+    //OPENAI관련 오류
+    _AI_PARSE_ERROR(HttpStatus.BAD_REQUEST, "OPENAI5001", "AI 응답 파싱에 실패했습니다."),
+    _AI_INVALID_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5002", "AI 응답이 예상한 형식이 아닙니다."),
     //카테고리(폴더종류) 관련 에러
     _CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY4041", "해당하는 카테고리를 찾을 수 없습니다."),
     //감정 관련 에러
@@ -42,8 +45,9 @@ public enum ErrorStatus implements BaseErrorCode {
     //폴더 관련 에러
     _FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER4041", "해당하는 폴더를 찾을 수 없습니다."),
 
+    //Situation 상황 관련 오류
+    _SITUATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Situation4041", "해당하는 상황을 찾을 수 없습니다.");
 
-    ;
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
