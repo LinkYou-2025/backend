@@ -21,7 +21,6 @@ public class AiArticleController {
     @PostMapping("/{linkuid}")
     public ApiResponse<AiArticleResponsetDTO.AiArticleResultDTO> saveAiArticle(
             @PathVariable("linkuid") Long linkuId,
-            @RequestParam(required = false) String memo,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         if (userDetails == null) {
