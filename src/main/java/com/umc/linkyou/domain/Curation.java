@@ -24,9 +24,6 @@ public class Curation extends BaseEntity {
     @Column(length = 7, nullable = false)
     private String month;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String summaryText;
-
     @Column(length = 255, nullable = false)
     private String thumbnailUrl;
 }

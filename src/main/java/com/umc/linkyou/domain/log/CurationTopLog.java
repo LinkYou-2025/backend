@@ -17,19 +17,23 @@ import java.time.LocalDateTime;
 public class CurationTopLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long curationTopEmotionId;
+    @Column(name = "curation_top_log_id", nullable = false)
+    private Long curationTopLogId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curation_id", nullable = false)
     private Curation curation;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
     private CurationTopLogType type;
 
-    @Column(nullable = false)
+    @Column(name = "ref_id", nullable = false)
     private Long refId;
 
-    @Column(nullable = false)
+    @Column(name = "count", nullable = false)
     private int count;
+
+    @Column(name = "tag_name", length = 30, nullable = false)
+    private String tagName;
 }
