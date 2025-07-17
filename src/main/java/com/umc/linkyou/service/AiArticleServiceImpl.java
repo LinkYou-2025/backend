@@ -2,6 +2,7 @@ package com.umc.linkyou.service;
 
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.GeneralException;
+import com.umc.linkyou.converter.AiArticleConverter;
 import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Emotion;
@@ -47,6 +48,10 @@ public class AiArticleServiceImpl implements AiArticleService {
 
         UsersLinku usersLinku = usersLinkuRepository.findById(linkuId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+        // aiArticle은 같은 링크에 대한 중복 생성이 불가능합니다.
+        if (aiArticleRepository.existsByUsersLinku(usersLinku)) {
+            throw new GeneralException(ErrorStatus._DUPLICATE_AI_ARTICLE);
+        }
         Linku linku = usersLinku.getLinku();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
@@ -73,7 +78,7 @@ public class AiArticleServiceImpl implements AiArticleService {
             );
         } catch (IOException e) {
             log.error("[AI JSON 파싱 실패 또는 응답 오류]: {}", e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._AI_INVALID_RESPONSE); // 🔄 새로운 에러 정의 권장
+            throw new GeneralException(ErrorStatus._AI_INVALID_RESPONSE);
         }
 
         // 4. id 기반 Entity 조인
@@ -84,32 +89,24 @@ public class AiArticleServiceImpl implements AiArticleService {
         Category selectedCategory = categoryRepository.findById(result.getCategoryId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
 
-        // 5. 저장
-        AiArticle article = AiArticle.builder()
-                .title(result.getTitle())
-                .summary(result.getSummary())
-                .aiFeeling(selectedEmotion.getName())
-                .aiCategory(selectedCategory.getName())
-                .situation(selectedSituation)
-                .usersLinku(usersLinku)
-                .imgUrl(usersLinku.getImageUrl())
-                .keyword(result.getKeywords())
-                .build();
-
+        // 5. 저장 (엔티티 생성, 저장)
+        AiArticle article = AiArticleConverter.toEntity(
+                result,
+                selectedSituation,
+                selectedEmotion,
+                selectedCategory,
+                usersLinku
+        );
         AiArticle saved = aiArticleRepository.save(article);
 
-        // 6. 반환 DTO
-        return AiArticleResponsetDTO.AiArticleResultDTO.builder()
-                .id(saved.getId())
-                .linku(linku)
-                .situation(selectedSituation)
-                .emotion(selectedEmotion)
-                .title(saved.getTitle())
-                .summary(saved.getSummary())
-                .imgUrl(saved.getImgUrl())
-                .aiCategory(saved.getAiCategory())
-                .aiFeeling(saved.getAiFeeling())
-                .keyword(saved.getKeyword())
-                .build();
+        // 6. 반환 DTO 생성
+        return AiArticleConverter.toDto(
+                saved,
+                linku,
+                usersLinku,
+                selectedSituation,
+                selectedEmotion,
+                selectedCategory
+        );
     }
 }

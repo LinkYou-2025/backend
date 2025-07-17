@@ -16,14 +16,18 @@ public class AiArticleResponsetDTO {
     @Builder
     public static class AiArticleResultDTO {
         private Long id;
-        private Linku linku;
-        private Situation situation;
-        private Emotion emotion;
+        private Long linkuId;
+        private Long situationId;
+        private String situationName;
+        private Long emotionId;
+        private String emotionName;
         private String title;
         private String aiFeeling;
-        private String aiCategory;
+        private Long aiCategoryId;
+        private String categoryName;
         private String summary;
         private String imgUrl;
+        private String memo;
         private String keyword;
     }
 }
