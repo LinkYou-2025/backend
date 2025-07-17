@@ -11,7 +11,7 @@ import com.umc.linkyou.repository.LogRepository.CurationTopLogRepository;
 import com.umc.linkyou.repository.LogRepository.EmotionLogRepository;
 import com.umc.linkyou.repository.LogRepository.SituationLogRepository;
 import com.umc.linkyou.repository.EmotionRepository;
-import com.umc.linkyou.repository.SituationJobRepository;
+import com.umc.linkyou.repository.mapping.SituationJobRepository;
 import com.umc.linkyou.web.dto.curation.CurationTopLogDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
