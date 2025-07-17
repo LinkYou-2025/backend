@@ -12,6 +12,7 @@ import com.umc.linkyou.domain.classification.Domain;
 import com.umc.linkyou.domain.classification.Emotion;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
+import com.umc.linkyou.googleImgParser.LinkToImageService;
 import com.umc.linkyou.repository.*;
 import com.umc.linkyou.repository.LinkuRepository.LinkuRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
@@ -46,6 +47,7 @@ public class LinkuServiceImpl implements LinkuService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
     private final AwsS3Service awsS3Service;
+    private final LinkToImageService linkToImageService;
 
     @Override
     @Transactional
@@ -80,7 +82,13 @@ public class LinkuServiceImpl implements LinkuService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
 
         //image저장
-        String imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
+        } else {
+            // 링크로 대표 이미지 추출 저장 실패 시 null로 저장
+            imageUrl = linkToImageService.getRelatedImageFromUrl(dto.getLinku());
+        }
 
         //usersLinku생성
         UsersLinku usersLinku = LinkuConverter.toUsersLinku(user, linku, emotion, dto.getMemo(),imageUrl);
