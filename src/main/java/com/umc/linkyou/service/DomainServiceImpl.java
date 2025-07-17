@@ -6,7 +6,7 @@ import com.umc.linkyou.awsS3.AwsS3Service;
 import com.umc.linkyou.converter.AwsS3Converter;
 import com.umc.linkyou.converter.DomainConverter;
 import com.umc.linkyou.domain.classification.Domain;
-import com.umc.linkyou.repository.*;
+import com.umc.linkyou.repository.classification.DomainRepository;
 import com.umc.linkyou.web.dto.DomainDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -69,6 +69,8 @@ dependencies {
 
 // JavaMail API 라이브러리
 	implementation 'com.sun.mail:jakarta.mail:2.0.1'
+//jsoup 크롤링
+	implementation 'org.jsoup:jsoup:1.17.2'
 
 }
 
