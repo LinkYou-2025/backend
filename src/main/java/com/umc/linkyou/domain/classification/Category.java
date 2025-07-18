@@ -1,5 +1,6 @@
 package com.umc.linkyou.domain.classification;
 
+import com.umc.linkyou.domain.Linku;
 import com.umc.linkyou.domain.folder.Fcolor;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;

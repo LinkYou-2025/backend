@@ -1,17 +1,15 @@
 package com.umc.linkyou.service.folder;
 
 import com.umc.linkyou.converter.FolderConverter;
-import com.umc.linkyou.domain.Category;
+import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
-import com.umc.linkyou.repository.CategoryRepository;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.web.dto.folder.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +24,6 @@ import java.util.stream.Collectors;
 public class FolderServiceImpl implements FolderService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
-    private final CategoryRepository categoryRepository;
     private final UsersFolderRepository usersFolderRepository;
     private final FolderConverter folderConverter;
 

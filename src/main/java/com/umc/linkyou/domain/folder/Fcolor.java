@@ -1,6 +1,6 @@
 package com.umc.linkyou.domain.folder;
 
-import com.umc.linkyou.domain.Category;
+import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
 import jakarta.persistence.*;
 import lombok.*;
