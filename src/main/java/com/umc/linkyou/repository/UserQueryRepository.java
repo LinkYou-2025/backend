@@ -49,5 +49,4 @@ public class UserQueryRepository {
                 .fetchOne();
     }
     // 내가 만든 ai 링크 조회
-
 }
