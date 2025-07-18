@@ -11,13 +11,15 @@ import com.umc.linkyou.repository.LogRepository.CurationTopLogRepository;
 import com.umc.linkyou.repository.LogRepository.EmotionLogRepository;
 import com.umc.linkyou.repository.LogRepository.SituationLogRepository;
 import com.umc.linkyou.repository.EmotionRepository;
-import com.umc.linkyou.repository.SituationJobRepository;
+import com.umc.linkyou.repository.mapping.SituationJobRepository;
 import com.umc.linkyou.web.dto.curation.CurationTopLogDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,14 +52,17 @@ public class CurationTopLogServiceImpl implements CurationTopLogService {
         QEmotionLog emotionLog = QEmotionLog.emotionLog;
         QSituationLog situationLog = QSituationLog.situationLog;
 
-        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).toLocalDate().atStartOfDay();
+        YearMonth yearMonth = YearMonth.parse(curation.getMonth(), DateTimeFormatter.ofPattern("yyyy-MM"));
+        LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();              // 2025-06-01T00:00
+        LocalDateTime startOfNextMonth = yearMonth.plusMonths(1).atDay(1).atStartOfDay(); // 2025-07-01T00:00
 
         List<Tuple> emotionCounts = queryFactory
                 .select(emotionLog.emotion.emotionId, emotionLog.count())
                 .from(emotionLog)
                 .where(
                         emotionLog.user.id.eq(userId),
-                        emotionLog.createdAt.goe(startOfMonth)
+                        emotionLog.createdAt.goe(startOfMonth),
+                        emotionLog.createdAt.lt(startOfNextMonth)
                 )
                 .groupBy(emotionLog.emotion.emotionId)
                 .fetch();
@@ -67,7 +72,8 @@ public class CurationTopLogServiceImpl implements CurationTopLogService {
                 .from(situationLog)
                 .where(
                         situationLog.user.id.eq(userId),
-                        situationLog.createdAt.goe(startOfMonth)
+                        situationLog.createdAt.goe(startOfMonth),
+                        situationLog.createdAt.lt(startOfNextMonth)
                 )
                 .groupBy(situationLog.situationJob.id)
                 .fetch();
