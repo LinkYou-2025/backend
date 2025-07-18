@@ -6,12 +6,15 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.Folder;
+import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Interests;
 import com.umc.linkyou.domain.classification.Job;
 import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.enums.Interest;
 import com.umc.linkyou.domain.enums.Purpose;
+import com.umc.linkyou.domain.mapping.UsersFolder;
 import com.umc.linkyou.repository.EmailRepository;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
@@ -33,10 +36,7 @@ import org.springframework.stereotype.Service;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -86,10 +86,12 @@ public class UserServiceImpl implements UserService {
 
         List<String> purposeNames = request.getPurposeList(); // 프론트에서 받은 enum 이름 리스트
 
+        final Users savedUser = newUser;
+
         List<Purposes> purposeList = purposeNames.stream()
                 .map(name -> {
                     Purpose enumPurpose = Purpose.valueOf(name); // 문자열 → enum
-                    return new Purposes(enumPurpose, newUser);
+                    return new Purposes(enumPurpose, savedUser);
                 })
                 .toList();
 
@@ -98,11 +100,49 @@ public class UserServiceImpl implements UserService {
         List<Interests> interestList = interestNames.stream()
                 .map(name -> {
                     Interest enumInterest = Interest.valueOf(name); // 문자열 → enum
-                    return new Interests(enumInterest, newUser);
+                    return new Interests(enumInterest, savedUser);
                 })
                 .toList();
 
-        return userRepository.save(newUser);
+        //return userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
+
+        // 마이 폴더 생성
+        Folder myFolder = folderRepository.save(Folder.builder()
+                .folderName("MyFolder")
+                .parentFolder(null)
+                .category(null)
+                .build()
+        );
+
+        // 중분류 폴더 생성
+        List<Category> categories = categoryRepository.findAll();
+        List<Folder> createdFolders = new ArrayList<>();
+
+        createdFolders.add(myFolder); // 대분류 포함
+
+        for (Category category : categories) {
+            Folder subFolder = folderRepository.save(Folder.builder()
+                    .folderName(category.getName())
+                    .category(category)
+                    .parentFolder(myFolder)
+                    .build());
+            createdFolders.add(subFolder); // 중분류 폴더 추가
+        }
+
+        // UsersFolder 매핑
+        for (Folder folder : createdFolders) {
+            usersFolderRepository.save(UsersFolder.builder()
+                    .user(newUser)
+                    .folder(folder)
+                    .isOwner(true)
+                    .isWriter(true)
+                    .isViewer(true)
+                    .isBookmarked(false)
+                    .build());
+        }
+
+        return newUser;
     }
 
     @Override
