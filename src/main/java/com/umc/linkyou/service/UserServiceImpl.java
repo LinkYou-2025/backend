@@ -6,7 +6,7 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
-import com.umc.linkyou.domain.Folder;
+import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Interests;
 import com.umc.linkyou.domain.classification.Job;
@@ -14,13 +14,13 @@ import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.enums.Interest;
 import com.umc.linkyou.domain.enums.Purpose;
-import com.umc.linkyou.domain.mapping.UsersFolder;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.EmailRepository;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
-import com.umc.linkyou.repository.mapping.UsersFolderRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -107,34 +107,20 @@ public class UserServiceImpl implements UserService {
         //return userRepository.save(newUser);
         newUser = userRepository.save(newUser);
 
-        // 마이 폴더 생성
-        Folder myFolder = folderRepository.save(Folder.builder()
-                .folderName("MyFolder")
-                .parentFolder(null)
-                .category(null)
-                .build()
-        );
-
         // 중분류 폴더 생성
         List<Category> categories = categoryRepository.findAll();
-        List<Folder> createdFolders = new ArrayList<>();
-
-        createdFolders.add(myFolder); // 대분류 포함
 
         for (Category category : categories) {
             Folder subFolder = folderRepository.save(Folder.builder()
-                    .folderName(category.getName())
+                    .folderName(category.getCategoryName())
                     .category(category)
-                    .parentFolder(myFolder)
+                    .parentFolder(null)
                     .build());
-            createdFolders.add(subFolder); // 중분류 폴더 추가
-        }
 
-        // UsersFolder 매핑
-        for (Folder folder : createdFolders) {
+            // UsersFolder 매핑
             usersFolderRepository.save(UsersFolder.builder()
                     .user(newUser)
-                    .folder(folder)
+                    .folder(subFolder)
                     .isOwner(true)
                     .isWriter(true)
                     .isViewer(true)
