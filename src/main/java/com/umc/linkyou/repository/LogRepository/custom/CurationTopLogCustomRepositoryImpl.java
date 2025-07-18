@@ -25,4 +25,20 @@ public class CurationTopLogCustomRepositoryImpl implements CurationTopLogCustomR
                 .limit(3)
                 .fetch();
     }
+
+    @Override
+    public CurationTopLog findTopEmotionLogByCurationId(Long curationId) {
+        QCurationTopLog log = QCurationTopLog.curationTopLog;
+
+        return queryFactory
+                .selectFrom(log)
+                .where(
+                        log.curation.curationId.eq(curationId),
+                        log.type.eq(com.umc.linkyou.domain.enums.CurationTopLogType.EMOTION)
+                )
+                .orderBy(log.count.desc())
+                .limit(1)
+                .fetchOne(); // 하나만 조회
+    }
+
 }

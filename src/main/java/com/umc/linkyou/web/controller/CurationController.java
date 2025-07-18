@@ -44,6 +44,12 @@ public class CurationController {
 
         return ResponseEntity.ok(response);
     }
+    // 자동생성 테스트
+    @GetMapping("/batch/manual")
+    public ResponseEntity<Void> triggerBatch() {
+        curationService.generateMonthlyCurationForAllUsers();
+        return ResponseEntity.ok().build();
+    }
 
     /**
      * 큐레이션 상세 조회 API
