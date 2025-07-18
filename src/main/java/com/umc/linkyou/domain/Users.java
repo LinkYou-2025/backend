@@ -5,6 +5,8 @@ import com.umc.linkyou.domain.classification.Job;
 import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.enums.*;
+import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +23,7 @@ public class Users extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "users_id")
+    @Column(name = "user_id")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -48,9 +50,15 @@ public class Users extends BaseEntity {
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL)
     private List<Interests> interests = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UsersFolder> usersFoldersList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UsersCategoryColor> usersCategoryColorList = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Role role = Role.USER;;
+    private Role role = Role.USER;
 
     public void encodePassword(String password) {
         this.password = password;

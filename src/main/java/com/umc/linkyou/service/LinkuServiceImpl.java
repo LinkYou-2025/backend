@@ -10,6 +10,7 @@ import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Domain;
 import com.umc.linkyou.domain.classification.Emotion;
+import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
 import com.umc.linkyou.googleImgParser.LinkToImageService;
