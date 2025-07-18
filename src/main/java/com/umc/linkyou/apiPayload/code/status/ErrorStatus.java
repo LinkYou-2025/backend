@@ -27,10 +27,30 @@ public enum ErrorStatus implements BaseErrorCode {
     _PURPOSE_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "목적을 선택해야합니다."),
     _INTEREST_NOT_PROVIDED(HttpStatus.NOT_FOUND, "COMMON404", "관심 분야를 선택해야합니다."),
     _NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 생성 실패"),
-    _SEND_MAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 전송 실패")
+    _SEND_MAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "인증 코드 전송 실패"),
 
-    //링큐 관련 에러
-    ;
+    //링큐 관련 코드
+    _LINKU_VIDEO_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "LINKU4001", "영상 링크는 저장할 수 없습니다."),
+    _LINKU_INVALID_URL(HttpStatus.BAD_REQUEST, "LINKU4002", "유효하지 않은 링크입니다."),
+
+    //OPENAI관련 오류
+    _AI_PARSE_ERROR(HttpStatus.BAD_REQUEST, "OPENAI5001", "AI 응답 파싱에 실패했습니다."),
+    _AI_INVALID_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5002", "AI 응답이 예상한 형식이 아닙니다."),
+    //AIArticle 생성오류
+    _DUPLICATE_AI_ARTICLE(HttpStatus.CONFLICT, "AIARTICLE4091", "이미 해당 링크로 생성된 AI 아티클이 존재합니다."),
+
+    //카테고리(폴더종류) 관련 에러
+    _CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY4041", "해당하는 카테고리를 찾을 수 없습니다."),
+    //감정 관련 에러
+    _EMOTION_NOT_FOUND(HttpStatus.NOT_FOUND, "EMOTION4041", "해당하는 감정을 찾을 수 없습니다."),
+    //도메인 관련 에러
+    _DOMAIN_NOT_FOUND(HttpStatus.NOT_FOUND, "DOMAIN4041", "해당하는 도메인을 찾을 수 없습니다."),
+    //폴더 관련 에러
+    _FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER4041", "해당하는 폴더를 찾을 수 없습니다."),
+
+    //Situation 상황 관련 오류
+    _SITUATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Situation4041", "해당하는 상황을 찾을 수 없습니다.");
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

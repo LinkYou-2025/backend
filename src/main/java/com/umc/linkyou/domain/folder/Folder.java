@@ -1,6 +1,6 @@
 package com.umc.linkyou.domain.folder;
 
-import com.umc.linkyou.domain.Category;
+import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;

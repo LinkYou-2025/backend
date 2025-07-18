@@ -1,17 +1,20 @@
 package com.umc.linkyou.service;
 
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
-import com.umc.linkyou.domain.Interests;
-import com.umc.linkyou.domain.Purposes;
+import com.umc.linkyou.domain.classification.Interests;
+import com.umc.linkyou.domain.classification.Job;
+import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.enums.Interest;
 import com.umc.linkyou.domain.enums.Purpose;
 import com.umc.linkyou.repository.EmailRepository;
 import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.classification.JobRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -48,6 +51,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
 
     private final EmailRepository emailRepository;
+    private final JobRepository jobRepository;
 
 
     @Value("${auth-code-expiration-millis}")
@@ -63,8 +67,11 @@ public class UserServiceImpl implements UserService {
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new UserHandler(ErrorStatus._DUPLICATE_JOIN_REQUEST);
         }
+        // Job 엔티티를 DB에서 조회
+        Job job = jobRepository.findById(request.getJobId())
+                .orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
 
-        Users newUser = UserConverter.toUser(request);
+        Users newUser = UserConverter.toUser(request,job);
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
 
         List<String> purposeNames = request.getPurposeList(); // 프론트에서 받은 enum 이름 리스트

@@ -1,4 +1,4 @@
-package com.umc.linkyou.domain;
+package com.umc.linkyou.domain.classification;
 
 import com.umc.linkyou.domain.folder.Fcolor;
 import com.umc.linkyou.domain.folder.Folder;
