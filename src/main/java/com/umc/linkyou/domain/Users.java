@@ -2,7 +2,6 @@ package com.umc.linkyou.domain;
 
 import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.enums.*;
-import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import jakarta.persistence.*;
@@ -21,7 +20,7 @@ public class Users extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "users_id")
+    @Column(name = "user_id")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -55,7 +54,7 @@ public class Users extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Role role = Role.USER;;
+    private Role role = Role.USER;
 
     public void encodePassword(String password) {
         this.password = password;

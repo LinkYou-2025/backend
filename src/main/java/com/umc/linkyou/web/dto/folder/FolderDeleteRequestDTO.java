@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FolderCreateRequestDTO {
-    private String folderName;
+public class FolderDeleteRequestDTO {
+    private Long folderId;
 }
 

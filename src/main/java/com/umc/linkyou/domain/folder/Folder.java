@@ -3,6 +3,7 @@ package com.umc.linkyou.domain.folder;
 import com.umc.linkyou.domain.Category;
 import com.umc.linkyou.domain.common.BaseEntity;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,6 +38,6 @@ public class Folder extends BaseEntity {
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL)
     private List<LinkuFolder> linkuFolderList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "parentFolder")
-    private List<Folder> subFolders = new ArrayList<>();
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL)
+    private List<UsersFolder> usersFolderList = new ArrayList<>();
 }

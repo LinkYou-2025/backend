@@ -6,6 +6,8 @@ import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.folder.QFolder;
 import com.umc.linkyou.domain.mapping.folder.QUsersFolder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,8 +41,6 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
         // 중분류 폴더는 부모 폴더 null
         if (parentFolderId != null) {
             builder.and(usersFolder.folder.parentFolder.folderId.eq(parentFolderId));
-        } else {
-            builder.and(usersFolder.folder.parentFolder.isNull());
         }
 
         if (folderName != null && !folderName.isEmpty()) {
