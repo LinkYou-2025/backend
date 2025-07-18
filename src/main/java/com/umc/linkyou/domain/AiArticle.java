@@ -26,17 +26,17 @@ public class AiArticle extends BaseEntity {
     private Situation situation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_linku_id", nullable = false)
-    private UsersLinku usersLinku;
+    @JoinColumn(name = "linku_id", nullable = false, unique = true)
+    private Linku linku;
 
     @Column(name = "title", nullable = false, length = 255)
     private String title;
 
-    @Column(name = "ai_feeling", length = 50)
-    private String aiFeeling;
+    @Column(name = "ai_feeling_id")
+    private Long aiFeelingId;
 
-    @Column(name = "ai_category", length = 50)
-    private String aiCategory;
+    @Column(name = "ai_category_id")
+    private Long aiCategoryId;
 
     @Column(name = "summary", nullable = false, length = 255)
     private String summary;

@@ -15,22 +15,24 @@ public class AiArticleConverter {
                                      Situation selectedSituation,
                                      Emotion selectedEmotion,
                                      Category selectedCategory,
-                                     UsersLinku usersLinku) {
+                                     Linku linku,
+                                     String imageUrl)
+    {
         return AiArticle.builder()
-                .title(result.getTitle())
-                .summary(result.getSummary())
-                .aiFeeling(selectedEmotion.getName())
-                .aiCategory(selectedCategory.getName())
+                .linku(linku)
                 .situation(selectedSituation)
-                .usersLinku(usersLinku)
-                .imgUrl(usersLinku.getImageUrl())
+                .title(result.getTitle())
+                .aiFeelingId(selectedEmotion.getEmotionId())
+                .aiCategoryId(selectedCategory.getCategoryId())
+                .summary(result.getSummary())
+                .imgUrl(imageUrl)
                 .keyword(result.getKeywords())
                 .build();
     }
 
     // DTO 생성 메서드
     public static AiArticleResponsetDTO.AiArticleResultDTO toDto(
-            AiArticle saved,
+            AiArticle entity,
             Linku linku,
             UsersLinku usersLinku,
             Situation selectedSituation,
@@ -38,20 +40,21 @@ public class AiArticleConverter {
             Category selectedCategory
     ) {
         return AiArticleResponsetDTO.AiArticleResultDTO.builder()
-                .id(saved.getId())
+                .id(entity.getId())
                 .linkuId(linku.getLinkuId())
-                .situationId(selectedSituation.getId())
-                .situationName(selectedSituation.getName())
-                .emotionId(selectedEmotion.getEmotionId())
-                .emotionName(selectedEmotion.getName())
-                .title(saved.getTitle())
-                .aiFeeling(saved.getAiFeeling())
-                .aiCategoryId(selectedCategory.getCategoryId())
-                .categoryName(selectedCategory.getName())
-                .summary(saved.getSummary())
-                .imgUrl(saved.getImgUrl())
-                .memo(usersLinku.getMemo())
-                .keyword(saved.getKeyword())
+                .situationId(selectedSituation != null ? selectedSituation.getId() : null)
+                .situationName(selectedSituation != null ? selectedSituation.getName() : null)
+                .emotionId(selectedEmotion != null ? selectedEmotion.getEmotionId() : null)
+                .emotionName(selectedEmotion != null ? selectedEmotion.getName() : null)
+                .title(entity.getTitle())
+                .aiFeelingName(selectedEmotion != null ? selectedEmotion.getName() : null)
+                .aiFeelingId(entity.getAiFeelingId())
+                .aiCategoryId(entity.getAiCategoryId())
+                .categoryName(selectedCategory != null ? selectedCategory.getName() : null)
+                .summary(entity.getSummary())
+                .imgUrl(entity.getImgUrl())
+                .memo(usersLinku != null ? usersLinku.getMemo() : null)
+                .keyword(entity.getKeyword())
                 .build();
     }
 }

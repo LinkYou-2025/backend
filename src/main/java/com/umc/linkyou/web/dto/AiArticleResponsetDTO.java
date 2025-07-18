@@ -22,7 +22,8 @@ public class AiArticleResponsetDTO {
         private Long emotionId;
         private String emotionName;
         private String title;
-        private String aiFeeling;
+        private String aiFeelingName;
+        private Long aiFeelingId;
         private Long aiCategoryId;
         private String categoryName;
         private String summary;
