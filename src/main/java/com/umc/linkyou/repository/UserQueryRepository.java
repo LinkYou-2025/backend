@@ -4,8 +4,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.linkyou.domain.QAiArticle;
 import com.umc.linkyou.domain.QLinku;
 import com.umc.linkyou.domain.QUsers;
-import com.umc.linkyou.domain.mapping.QUsersFolder;
 import com.umc.linkyou.domain.mapping.QUsersLinku;
+import com.umc.linkyou.domain.mapping.folder.QUsersFolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

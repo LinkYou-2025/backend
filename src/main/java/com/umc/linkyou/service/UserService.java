@@ -16,6 +16,9 @@ public interface UserService {
     // 마이페이지 조회
     UserResponseDTO.UserInfoDTO userInfo(Long id);
 
+    // 마이페이지 수정
+    void updateUserProfile(Long userId, UserRequestDTO.UpdateProfileDTO updateDTO);
+
     // 이메일 인증
     // 인증 코드 전송
     void sendCode(String toEmail);

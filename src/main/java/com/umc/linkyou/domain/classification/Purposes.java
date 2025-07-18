@@ -10,11 +10,10 @@ import java.time.LocalDateTime;
 public class Purposes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Purpose purpose;
+    private String purpose;
 
     @Column(nullable = false)
     private LocalDateTime selectedAt;
@@ -27,7 +26,7 @@ public class Purposes {
 
     }
 
-    public Purposes(Purpose enumPurpose, Users newUser) {
+    public Purposes(String enumPurpose, Users newUser) {
         this.purpose = enumPurpose;
         this.user = newUser;
         this.selectedAt = LocalDateTime.now();

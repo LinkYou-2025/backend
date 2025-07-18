@@ -11,11 +11,10 @@ public class Interests {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Interest interest;
+    private String interest;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // 외래키 설정
@@ -28,7 +27,7 @@ public class Interests {
 
     }
 
-    public Interests(Interest enumInterest, Users newUser) {
+    public Interests(String enumInterest, Users newUser) {
         this.interest = enumInterest;
         this.user = newUser;
         this.selectedAt = LocalDateTime.now();

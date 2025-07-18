@@ -74,4 +74,24 @@ public class UserController {
         return ApiResponse.onSuccess(userService.userInfo(userId));
     }
 
+    // 마이페이지 수정
+    @PutMapping("/profile")
+    public ApiResponse<String> updateUserProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UserRequestDTO.UpdateProfileDTO updateDTO
+    ) {
+        if (userDetails == null) {
+            return ApiResponse.onFailure(
+                    ErrorStatus._INVALID_TOKEN.getCode(),
+                    ErrorStatus._INVALID_TOKEN.getMessage(),
+                    null
+            );
+        }
+
+        Long userId = userDetails.getUsers().getId(); // 로그인된 사용자 ID 추출
+        userService.updateUserProfile(userId, updateDTO);
+
+        return ApiResponse.onSuccess("프로필이 성공적으로 수정되었습니다.");
+    }
+
 }
