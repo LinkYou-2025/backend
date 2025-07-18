@@ -28,4 +28,8 @@ public class Linku extends BaseEntity {
     @Column(columnDefinition = "text", nullable = false)
     private String linku;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aiArticle_id")
+    private AiArticle aiArticle;
+
 }

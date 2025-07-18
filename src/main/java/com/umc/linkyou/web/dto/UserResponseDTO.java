@@ -40,7 +40,7 @@ public class UserResponseDTO {
         Long myFolder; // 나의 폴더
 
         // 내가 만든 ai 링크
-        // Long myAiLinku;
+        Long myAiLinku;
 
     }
 

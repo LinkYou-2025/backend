@@ -203,9 +203,10 @@ public class UserServiceImpl implements UserService {
         String nickName = userQueryRepository.findNicknameByUserId(userId);
         Long linkCount = userQueryRepository.countLinksByUserId(userId);
         Long folderCount = userQueryRepository.countFoldersByUserId(userId);
+        Long aiLinkCount = userQueryRepository.countAiLinksByUserId(userId);
 
         return UserConverter.toUserInfoDTO(
-                nickName, linkCount, folderCount
+                nickName, linkCount, folderCount, aiLinkCount
         );
     }
 }
