@@ -13,8 +13,11 @@ import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.enums.Interest;
 import com.umc.linkyou.domain.enums.Purpose;
 import com.umc.linkyou.repository.EmailRepository;
+import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
+import com.umc.linkyou.repository.mapping.UsersFolderRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -51,7 +54,14 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
 
     private final EmailRepository emailRepository;
+
     private final JobRepository jobRepository;
+
+    private final FolderRepository folderRepository;
+
+    private final CategoryRepository categoryRepository;
+
+    private final UsersFolderRepository usersFolderRepository;
 
 
     @Value("${auth-code-expiration-millis}")
