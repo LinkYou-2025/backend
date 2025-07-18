@@ -6,6 +6,7 @@ import com.umc.linkyou.service.curation.CurationTopLogService;
 import com.umc.linkyou.web.dto.curation.CreateCurationRequest;
 import com.umc.linkyou.web.dto.curation.CreateCurationResponse;
 import com.umc.linkyou.web.dto.curation.CurationDetailResponse;
+import com.umc.linkyou.web.dto.curation.CurationLatestResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,4 +60,16 @@ public class CurationController {
         CurationDetailResponse response = curationService.getCurationDetail(curationId);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * 가장 최근 큐레이션 조회
+     */
+    @GetMapping("/latest/{userId}")
+    public ResponseEntity<CurationLatestResponse> getLatestCuration(@PathVariable Long userId) {
+        return curationService.getLatestCuration(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build()); // or .notFound()
+    }
+
+
 }

@@ -13,6 +13,7 @@ import com.umc.linkyou.repository.LogRepository.CurationTopLogRepository;
 import com.umc.linkyou.repository.CurationRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.web.dto.curation.CurationDetailResponse;
+import com.umc.linkyou.web.dto.curation.CurationLatestResponse;
 import com.umc.linkyou.web.dto.curation.GptMentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -59,7 +61,9 @@ public class CurationServiceImpl implements CurationService {
 
         return curation;
     }
-
+    /**
+     * 유저의 큐레이션을 자동생성
+     */
     @Override
     @Transactional
     public void generateMonthlyCurationForAllUsers() {
@@ -152,4 +156,20 @@ public class CurationServiceImpl implements CurationService {
                 .footerMent(footer)
                 .build();
     }
+
+
+    /**
+     * 유저의 최근 큐레이션 정보를 가져옴
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CurationLatestResponse> getLatestCuration(Long userId) {
+        return curationRepository.findTopByUser_IdOrderByCreatedAtDesc(userId)
+                .map(curation -> new CurationLatestResponse(
+                        curation.getCurationId(),
+                        curation.getMonth(),         // YearMonth → "2025-07"
+                        curation.getThumbnailUrl()
+                ));
+    }
+
 }
