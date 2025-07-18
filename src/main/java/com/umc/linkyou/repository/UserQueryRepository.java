@@ -1,6 +1,7 @@
 package com.umc.linkyou.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.umc.linkyou.domain.QAiArticle;
 import com.umc.linkyou.domain.QLinku;
 import com.umc.linkyou.domain.QUsers;
 import com.umc.linkyou.domain.mapping.QUsersLinku;

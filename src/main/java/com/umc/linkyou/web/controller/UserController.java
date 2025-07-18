@@ -4,6 +4,7 @@ import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
 import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
+import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.service.UserService;
@@ -13,6 +14,7 @@ import com.umc.linkyou.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -60,7 +62,15 @@ public class UserController {
 
     // 마이페이지 조회
     @GetMapping("/{userId}")
-    public ApiResponse<UserResponseDTO.UserInfoDTO> getUserInfo(@PathVariable("userId") Long userId) {
+    public ApiResponse<UserResponseDTO.UserInfoDTO> getUserInfo(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("userId") Long userId) {
+        if (userDetails == null) {
+            // 토큰이 없거나 잘못된 경우
+            return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
+        }
+
+        String email = userDetails.getEmail();
+        System.out.println(email);
+
         return ApiResponse.onSuccess(userService.userInfo(userId));
     }
 

@@ -2,6 +2,8 @@ package com.umc.linkyou.domain;
 
 import com.umc.linkyou.domain.classification.Emotion;
 import com.umc.linkyou.domain.classification.Situation;
+import com.umc.linkyou.domain.common.BaseEntity;
+import com.umc.linkyou.domain.mapping.UsersLinku;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +14,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AiArticle {
+public class AiArticle extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,34 +22,28 @@ public class AiArticle {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "linku_id", nullable = false)
-    private Linku linku;
-
-    // FK: situation_id (ManyToOne)
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "situation_id", nullable = false)
     private Situation situation;
 
-    // FK: emotion_id (ManyToOne)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "emotion_id", nullable = false)
-    private Emotion emotion;
+    @JoinColumn(name = "user_linku_id", nullable = false)
+    private UsersLinku usersLinku;
 
-    @Column(name = "title", length = 255, nullable = false)
+    @Column(name = "title", nullable = false, length = 255)
     private String title;
 
     @Column(name = "ai_feeling", length = 50)
-    private String aiFeeling = "NEUTRAL"; // 기본 default 값
+    private String aiFeeling;
 
     @Column(name = "ai_category", length = 50)
-    private String aiCategory = "ETC"; // 기본 default 값
+    private String aiCategory;
 
-    @Column(name = "summary", length = 255, nullable = false)
+    @Column(name = "summary", nullable = false, length = 255)
     private String summary;
 
-    @Column(name = "img_url", columnDefinition = "text")
-    private String imageUrl;
+    @Column(name = "img_url", columnDefinition = "TEXT")
+    private String imgUrl;
 
-    @Column(name = "keyword", length = 200)
+    @Column(name = "keyword", columnDefinition = "TEXT")
     private String keyword;
 }

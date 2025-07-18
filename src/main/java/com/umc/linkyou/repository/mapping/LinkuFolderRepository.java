@@ -1,4 +1,4 @@
-package com.umc.linkyou.repository;
+package com.umc.linkyou.repository.mapping;
 
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import org.springframework.data.jpa.repository.JpaRepository;
