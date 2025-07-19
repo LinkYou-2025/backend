@@ -3,11 +3,9 @@ package com.umc.linkyou.repository.UsersFolderRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.linkyou.domain.folder.Folder;
-import com.umc.linkyou.domain.folder.QFolder;
 import com.umc.linkyou.domain.mapping.folder.QUsersFolder;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -66,5 +64,24 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
                 .from(usersFolder)
                 .where(builder)
                 .fetch();
+    }
+
+    public UsersFolder findByUserIdAndFolderId(Long userId, Long folderId) {
+        QUsersFolder usersFolder = QUsersFolder.usersFolder;
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 사용자 ID
+        if (userId != null) {
+            builder.and(usersFolder.user.id.eq(userId));
+        }
+
+        if (folderId != null) {
+            builder.and(usersFolder.folder.folderId.eq(folderId));
+        }
+
+        return queryFactory
+                .selectFrom(usersFolder)
+                .where(builder)
+                .fetchOne();
     }
 }

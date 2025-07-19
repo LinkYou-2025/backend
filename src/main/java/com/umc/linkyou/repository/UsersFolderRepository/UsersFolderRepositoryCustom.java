@@ -1,6 +1,7 @@
 package com.umc.linkyou.repository.UsersFolderRepository;
 
 import com.umc.linkyou.domain.folder.Folder;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 
 import java.util.List;
 
@@ -13,4 +14,6 @@ public interface UsersFolderRepositoryCustom {
             Boolean isBookmarked,
             Boolean isShared
     );
+
+    UsersFolder findByUserIdAndFolderId(Long userId, Long folderId);
 }
