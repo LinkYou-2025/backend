@@ -12,15 +12,16 @@ import com.umc.linkyou.domain.classification.Interests;
 import com.umc.linkyou.domain.classification.Job;
 import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
-import com.umc.linkyou.domain.enums.Interest;
-import com.umc.linkyou.domain.enums.Purpose;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.EmailRepository;
+import com.umc.linkyou.repository.UserQueryRepository;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.classification.InterestRepository;
 import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
+import com.umc.linkyou.repository.classification.PurposeRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -37,6 +38,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,6 +58,12 @@ public class UserServiceImpl implements UserService {
     private final EmailRepository emailRepository;
 
     private final JobRepository jobRepository;
+
+    private final UserQueryRepository userQueryRepository;
+
+    private final InterestRepository interestRepository;
+
+    private final PurposeRepository purposeRepository;
 
     private final FolderRepository folderRepository;
 
@@ -90,8 +98,8 @@ public class UserServiceImpl implements UserService {
 
         List<Purposes> purposeList = purposeNames.stream()
                 .map(name -> {
-                    Purpose enumPurpose = Purpose.valueOf(name); // 문자열 → enum
-                    return new Purposes(enumPurpose, savedUser);
+                    String purpose = name;
+                    return new Purposes(purpose, savedUser);
                 })
                 .toList();
 
@@ -99,10 +107,13 @@ public class UserServiceImpl implements UserService {
 
         List<Interests> interestList = interestNames.stream()
                 .map(name -> {
-                    Interest enumInterest = Interest.valueOf(name); // 문자열 → enum
-                    return new Interests(enumInterest, savedUser);
+                    String interest = name; // 문자열 → enum
+                    return new Interests(interest, savedUser);
                 })
                 .toList();
+
+        newUser.setPurposes(purposeList);
+        newUser.setInterests(interestList);
 
         //return userRepository.save(newUser);
         newUser = userRepository.save(newUser);
@@ -228,5 +239,50 @@ public class UserServiceImpl implements UserService {
         return EmailVerificationResponse.of(isMatch);
     }
 
+    // 마이페이지 조회
+    @Override
+    public UserResponseDTO.UserInfoDTO userInfo(Long userId){
+        String nickName = userQueryRepository.findNicknameByUserId(userId);
+        Long linkCount = userQueryRepository.countLinksByUserId(userId);
+        Long folderCount = userQueryRepository.countFoldersByUserId(userId);
+        Long aiLinkCount = userQueryRepository.countAiLinksByUserId(userId);
+
+        return UserConverter.toUserInfoDTO(
+                nickName, linkCount, folderCount, aiLinkCount
+        );
+    }
+
+    // 마이페이지 수정
+    @Override
+    @Transactional
+    public void updateUserProfile(Long userId, UserRequestDTO.UpdateProfileDTO request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus._USER_NOT_FOUND));
+
+        Job job = jobRepository.findById(request.getJobId())
+                .orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+        user.setJob(job);
+
+        // 닉네임 업데이트
+        if (request.getNickname() != null) {
+            user.setNickName(request.getNickname());
+        }
+
+        purposeRepository.deleteAllByUser(user); // 기존 목적 삭제
+
+        List<Purposes> newPurposes = request.getPurposes().stream()
+                .map(purpose -> new Purposes(purpose, user))
+                .collect(Collectors.toList());
+        purposeRepository.saveAll(newPurposes);
+
+        interestRepository.deleteAllByUser(user); // 기존 관심사 삭제
+
+        List<Interests> newInterests = request.getInterests().stream()
+                .map(interest -> new Interests(interest, user))
+                .collect(Collectors.toList());
+        interestRepository.saveAll(newInterests);
+
+        userRepository.save(user);
+    }
 }
 
