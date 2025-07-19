@@ -6,16 +6,20 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.folder.Folder;
+import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Interests;
 import com.umc.linkyou.domain.classification.Job;
 import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
-import com.umc.linkyou.domain.enums.Interest;
-import com.umc.linkyou.domain.enums.Purpose;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.EmailRepository;
 import com.umc.linkyou.repository.UserQueryRepository;
+import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.repository.classification.InterestRepository;
+import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
+import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
 import com.umc.linkyou.repository.classification.PurposeRepository;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
@@ -33,10 +37,7 @@ import org.springframework.stereotype.Service;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -64,6 +65,13 @@ public class UserServiceImpl implements UserService {
 
     private final PurposeRepository purposeRepository;
 
+    private final FolderRepository folderRepository;
+
+    private final CategoryRepository categoryRepository;
+
+    private final UsersFolderRepository usersFolderRepository;
+
+
     @Value("${auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
 
@@ -86,10 +94,12 @@ public class UserServiceImpl implements UserService {
 
         List<String> purposeNames = request.getPurposeList(); // 프론트에서 받은 enum 이름 리스트
 
+        final Users savedUser = newUser;
+
         List<Purposes> purposeList = purposeNames.stream()
                 .map(name -> {
                     String purpose = name;
-                    return new Purposes(purpose, newUser);
+                    return new Purposes(purpose, savedUser);
                 })
                 .toList();
 
@@ -98,14 +108,38 @@ public class UserServiceImpl implements UserService {
         List<Interests> interestList = interestNames.stream()
                 .map(name -> {
                     String interest = name; // 문자열 → enum
-                    return new Interests(interest, newUser);
+                    return new Interests(interest, savedUser);
                 })
                 .toList();
 
         newUser.setPurposes(purposeList);
         newUser.setInterests(interestList);
 
-        return userRepository.save(newUser);
+        //return userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
+
+        // 중분류 폴더 생성
+        List<Category> categories = categoryRepository.findAll();
+
+        for (Category category : categories) {
+            Folder subFolder = folderRepository.save(Folder.builder()
+                    .folderName(category.getCategoryName())
+                    .category(category)
+                    .parentFolder(null)
+                    .build());
+
+            // UsersFolder 매핑
+            usersFolderRepository.save(UsersFolder.builder()
+                    .user(newUser)
+                    .folder(subFolder)
+                    .isOwner(true)
+                    .isWriter(true)
+                    .isViewer(true)
+                    .isBookmarked(false)
+                    .build());
+        }
+
+        return newUser;
     }
 
     @Override
