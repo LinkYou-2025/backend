@@ -16,4 +16,7 @@ public interface FolderService {
 
     // 자식 폴더 목록 조회
     List<FolderListResponseDTO> getSubFolders(Long userId, Long parentFolderId);
+
+    // 북마크 설정/해제
+    FolderResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked);
 }

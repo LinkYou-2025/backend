@@ -72,4 +72,18 @@ public class FolderController {
         List<FolderListResponseDTO> folderList = folderService.getSubFolders(userDetails.getUsers().getId(), parentFolderId);
         return ResponseEntity.ok(folderList);
     }
+
+    // 북마크 설정/해제
+    @PutMapping("/{folderId}/bookmark")
+    @Operation(summary = "북마크 설정/해제")
+    public ResponseEntity<FolderResponseDTO> updateBookmark(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long folderId,
+            @RequestBody BookmarkUpdateRequestDTO request
+    ) {
+        FolderResponseDTO response = folderService.updateBookmark(
+                userDetails.getUsers().getId(), folderId, request.getIsBookmarked()
+        );
+        return ResponseEntity.ok(response);
+    }
 }
