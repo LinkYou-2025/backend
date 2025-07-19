@@ -1,6 +1,52 @@
 INSERT INTO fcolor (color_code, color_name)
-VALUES ('#000000', '기본색상')
+VALUES ('#FF5353', '레드')
 ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#FF6A2B', '오렌지')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#FF9C2B', '라이트오렌지')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#FFCE45', '옐로')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#77E61D', '라이트 그린')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#00C774', '그린')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#4B9857', '딥그린')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#36D1BE', '민트')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#34BBFF', '라이트 블루')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#4C7AF8', '블루')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#813CFF', '딥퍼플')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#BA5AFF', '퍼플')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#FF52DF', '핑크')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#FF459C', '딥핑크')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#906744', '브라운')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor (color_code, color_name)
+VALUES ('#000000', '블랙')
+ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+
 
 INSERT INTO category (category_id, color_code, category_name)
 VALUES (1, '#000000', '어학')
