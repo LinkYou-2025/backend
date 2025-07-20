@@ -147,4 +147,14 @@ public class FolderServiceImpl implements FolderService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    // 북마크 설정/해제
+    @Transactional
+    public FolderResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked) {
+        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId);
+
+        usersFolder.setIsBookmarked(isBookmarked);
+
+        return folderConverter.toFolderResponseDTO(usersFolder.getFolder());
+    }
 }
