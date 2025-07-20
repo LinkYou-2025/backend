@@ -25,9 +25,11 @@ public class Linku extends BaseEntity {
     @JoinColumn(name = "domain_id", nullable = false)
     private Domain domain;
 
-
     @Column(columnDefinition = "text", nullable = false)
     private String linku;
 
-}
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aiArticle_id")
+    private AiArticle aiArticle;
 
+}
