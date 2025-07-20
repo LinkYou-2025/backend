@@ -1,0 +1,80 @@
+name: linkyou
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Gradle Caching
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: make application.properties
+        run: |
+          mkdir -p src/main/resources
+          echo "$APPLICATION" > src/main/resources/application.properties
+        env:
+          APPLICATION: ${{ secrets.APPLICATION }}
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        # gradlew 자체가 gradle-wrapper.properties의 버전(8.14.2 등) 따라감
+        run: ./gradlew build -x test
+
+      - name: Build and Push Docker Image
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/goodluckynews:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/goodluckynews:latest
+
+      - name: Deploy to Dev
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/goodluckynews:latest
+            sudo docker stop goodluckynews || true
+            sudo docker rm goodluckynews || true
+            sudo docker run -d --name goodluckynews --log-driver=syslog -p 8080:8080 \
+              -e TZ=Asia/Seoul \
+              -e SPRING_PROFILES_ACTIVE= \
+              ${{ secrets.DOCKER_USERNAME }}/goodluckynews:latest
+            sudo docker image prune -a -f
+
+      - name: Check logs
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            sudo docker logs $(sudo docker ps -lq)
