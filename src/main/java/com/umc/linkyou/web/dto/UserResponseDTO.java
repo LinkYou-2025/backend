@@ -43,5 +43,16 @@ public class UserResponseDTO {
         Long myAiLinku;
 
     }
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class withDrawalResultDTO{
+        Long userId;
+        String nickname;
+        LocalDateTime createdAt;
+        String status;
+        LocalDateTime inactiveDate;
+    }
 
 }

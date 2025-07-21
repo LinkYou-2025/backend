@@ -10,6 +10,7 @@ import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +60,12 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.USER;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private String status = "ACTIVE"; // "ACTIVE", "INACTIVE"
+
+    private LocalDateTime inactiveDate;
 
     public void encodePassword(String password) {
         this.password = password;

@@ -33,4 +33,6 @@ public interface UserService {
 
     // 임시 비밀번호 전송
     void sendTempPassword(String email);
+
+    Users withdrawUser(Long userId);
 }
