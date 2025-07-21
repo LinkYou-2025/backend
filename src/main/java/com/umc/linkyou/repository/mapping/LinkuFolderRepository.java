@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface LinkuFolderRepository  extends JpaRepository<LinkuFolder, Long> {
     Optional<Object> findById(long l);
+
+    Optional<LinkuFolder>  findFirstByUsersLinku_UserLinkuIdOrderByLinkuFolderIdDesc(Long userLinkuId);
 }

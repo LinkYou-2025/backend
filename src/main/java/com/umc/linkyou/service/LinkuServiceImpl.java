@@ -183,6 +183,33 @@ public class LinkuServiceImpl implements LinkuService {
         }
     }
 
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuResultDTO>> detailGetLinku(Long userId, Long linkuId) {
+        // 1. 해당 사용자가 이 링크(linkuId)를 저장한 UsersLinku 찾기.
+        UsersLinku usersLinku = usersLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_LINKU_NOT_FOUND));
+
+        // 2. Linku는 UsersLinku에서 직접 꺼낼 수 있음
+        Linku linku = usersLinku.getLinku();
+
+        // 3. 기타 연관 엔티티 처리
+        Category category = linku.getCategory();
+        Emotion emotion = usersLinku.getEmotion();
+        Domain domain = linku.getDomain();
+
+        // 4. LinkuFolder 최신 1개 조회
+        LinkuFolder linkuFolder =
+                linkuFolderRepository.findFirstByUsersLinku_UserLinkuIdOrderByLinkuFolderIdDesc(usersLinku.getUserLinkuId()).orElse(null);
+
+        // 5. DTO 변환 및 반환
+        LinkuResponseDTO.LinkuResultDTO dto = LinkuConverter.toLinkuResultDTO(
+                userId, linku, usersLinku, linkuFolder, category, emotion, domain
+        );
+        return ResponseEntity.ok(ApiResponse.onSuccess("링크 상세 조회 성공", dto));
+    }
+
+
 
 }
 

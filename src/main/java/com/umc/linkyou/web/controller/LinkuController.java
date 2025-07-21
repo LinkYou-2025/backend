@@ -61,4 +61,17 @@ public class LinkuController {
         return linkuService.existLinku(userId, url);
     } //linku 존재여부 확인
 
+    @GetMapping("/{linkuid}")
+    public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuResultDTO>> detailLinku(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("linkuid") Long linkuid
+    ){
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(),ErrorStatus._INVALID_TOKEN.getMessage(), null));
+        }
+        Long userId = userDetails.getUsers().getId();
+        return linkuService.detailGetLinku(userId, linkuid);
+    } //linku 상세보기
+
 }
