@@ -5,18 +5,23 @@ import lombok.*;
 
 public class DomainDTO {
 
+    // DomainDTO.DomainRequestDTO
     @Setter
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DomainRequestDTO {
-        @Schema(example = "NAVER", description = "도메인 이름, 수정api는 도메인명을 기준으로 수정할 행을 찾습니다.")
+        @Schema(example = "1", description = "도메인 id (수정 시 반드시 필요)")
+        private Long id;
+
+        @Schema(example = "NAVER", description = "도메인 명 바꾸기")
         private String name;
 
         @Schema(example = "naver.com", description = "도메인 값 (ex: URL 호스트)")
         private String domainTail;
     }
+
 
     @Setter
     @Getter
@@ -26,5 +31,5 @@ public class DomainDTO {
         private String domainTail;
         private String imageUrl;
     }
-    
+
 }

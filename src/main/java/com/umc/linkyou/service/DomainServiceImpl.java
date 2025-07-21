@@ -38,10 +38,8 @@ public class DomainServiceImpl implements DomainService{
     @Override
     @Transactional
     public DomainDTO.DomainReponseDTO updateDomain(Long userId, DomainDTO.DomainRequestDTO dto, MultipartFile image) {
-        // 도메인명으로 해당하는 entity찾기
-        Domain domain = domainRepository.findByDomainTail(dto.getDomainTail())
+        Domain domain = domainRepository.findById(dto.getId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
-
         // null 아닌 필드만 업데이트
         if (dto.getName() != null) {
             domain.setName(dto.getName());
