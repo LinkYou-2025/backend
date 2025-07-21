@@ -102,7 +102,7 @@ public class UserController {
     }
 
     //회원 탈퇴
-    @DeleteMapping("/withdrawal")
+    @DeleteMapping("/inactive")
     public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) {
             return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
