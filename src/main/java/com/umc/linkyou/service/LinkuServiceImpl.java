@@ -266,7 +266,91 @@ public class LinkuServiceImpl implements LinkuService {
             results.add(dto);
         }
         return results;
-    }
+    } //최근 열람한 링크 가져오기
+
+    @Override
+    @Transactional
+    public LinkuResponseDTO.LinkuResultDTO updateLinku(Long userId, Long linkuId, LinkuRequestDTO.LinkuUpdateDTO dto) {
+        // 1. 본인이 소유한 UsersLinku 찾기 (= 내 userId와 linkuId로 찾음. 못 찾으면 오류)
+        UsersLinku usersLinku = usersLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_LINKU_NOT_FOUND));
+
+        // 2. 연관 Linku 엔티티 가져오기 (실제 링크 정보) 및 변경 플래그 준비
+        Linku linku = usersLinku.getLinku();
+        boolean linkuModified = false;         // Linku 엔티티가 수정됐는지
+        boolean usersLinkuModified = false;    // UsersLinku 엔티티가 수정됐는지
+
+        // 3. 폴더 변경(해당 링크를 다른 폴더로 이동)
+        if (dto.getFolderId() != null) {
+            Folder folder = folderRepository.findById(dto.getFolderId())
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
+            // 현재 링크-폴더 매핑 중 최신 1개 가져와서 폴더만 새로 세팅 (폴더 이동)
+            LinkuFolder linkuFolder = linkuFolderRepository
+                    .findFirstByUsersLinku_UserLinkuIdOrderByLinkuFolderIdDesc(usersLinku.getUserLinkuId())
+                    .orElse(null);
+            if (linkuFolder != null) {
+                linkuFolder.setFolder(folder);
+                linkuFolderRepository.save(linkuFolder);
+            }
+        }
+
+        // 4. 카테고리 변경 (DTO에 categoryId가 있으면 Linku category 교체)
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
+            linku.setCategory(category);
+            linkuModified = true;
+        }
+
+        // 5. 링크 주소(URL) 변경
+        if (dto.getLinku() != null) {
+            linku.setLinku(dto.getLinku());
+            linkuModified = true;
+        }
+
+        // 6. 메모 변경 (내가 작성한 메모)
+        if (dto.getMemo() != null) {
+            usersLinku.setMemo(dto.getMemo());
+            usersLinkuModified = true;
+        }
+
+        // 7. 감정 아이콘/상태 변경
+        if (dto.getEmotionId() != null) {
+            Emotion emotion = emotionRepository.findById(dto.getEmotionId())
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
+            usersLinku.setEmotion(emotion);
+            usersLinkuModified = true;
+        }
+
+        // 8. 도메인 변경 (링크의 소속 사이트 교체)
+        if (dto.getDomainId() != null) {
+            Domain domain = domainRepository.findById(dto.getDomainId())
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
+            linku.setDomain(domain);
+            linkuModified = true;
+        }
+
+        // 9. 제목(title) 변경
+        if (dto.getTitle() != null) {
+            linku.setTitle(dto.getTitle());
+            linkuModified = true;
+        }
+
+
+        // 11. 실제 변경이 발생한 엔티티만 저장(DB update)
+        if (linkuModified) linkuRepository.save(linku);
+        if (usersLinkuModified) usersLinkuRepository.save(usersLinku);
+
+        // 12. 최신 폴더 매핑 정보, 카테고리, 도메인 등 다시 조회해 응답 준비
+        LinkuFolder linkuFolder = linkuFolderRepository
+                .findFirstByUsersLinku_UserLinkuIdOrderByLinkuFolderIdDesc(usersLinku.getUserLinkuId())
+                .orElse(null);
+        Category category = linku.getCategory();
+        Domain domain = linku.getDomain();
+
+        // 13. DTO 변환해 반환 (모든 정보 최신상태로 응답)
+        return LinkuConverter.toLinkuResultDTO(userId, linku, usersLinku, linkuFolder, category, domain);
+    } //링크 수정
 
 
 

@@ -7,6 +7,7 @@ import com.umc.linkyou.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
