@@ -28,7 +28,4 @@ public class RecentViewedLinku {
 
     @Column(name = "viewed_at", nullable = false)
     private LocalDateTime viewedAt;
-
-    @Column(name = "view_count", nullable = false)
-    private Long viewCount =1L;
 }

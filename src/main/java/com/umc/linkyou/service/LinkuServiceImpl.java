@@ -217,21 +217,32 @@ public class LinkuServiceImpl implements LinkuService {
 
     @Transactional
     public void updateRecentViewedLinku(Long userId, Long linkuId) {
-        // 이미 기록이 있으면 viewCount, viewedAt만 업데이트
+// 1. 이미 열람 기록이 있으면 viewedAt만 갱신
         RecentViewedLinku rv = recentViewedLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
                 .orElse(null);
         if (rv != null) {
             rv.setViewedAt(LocalDateTime.now());
-            rv.setViewCount(rv.getViewCount() + 1);
-        } else {
-            // 없으면 새로 insert
-            rv = RecentViewedLinku.builder()
-                    .user(userRepository.getReferenceById(userId))
-                    .linku(linkuRepository.getReferenceById(linkuId))
-                    .viewedAt(LocalDateTime.now())
-                    .viewCount(1L)
-                    .build();
+            recentViewedLinkuRepository.save(rv);
+            return;
         }
+
+        // 2. 없으면, 기존 데이터 개수 체크 → 5개 이상이면 가장 오래된 것 삭제
+        List<RecentViewedLinku> allRecents = recentViewedLinkuRepository
+                .findAllByUser_IdOrderByViewedAtDesc(userId); // 이 때 desc/asc 원하는 대로
+
+        if (allRecents.size() >= 5) {
+            // 가장 오래된 열람(== viewedAt이 가장 작은/오래된 것) 삭제
+            // 만약 OrderByViewedAtDesc라면, 마지막 요소가 가장 오래된 것
+            RecentViewedLinku toDelete = allRecents.get(allRecents.size() - 1); // list는 desc로 옴
+            recentViewedLinkuRepository.delete(toDelete);
+        }
+
+        // 3. insert 새로 생성
+        rv = RecentViewedLinku.builder()
+                .user(userRepository.getReferenceById(userId))
+                .linku(linkuRepository.getReferenceById(linkuId))
+                .viewedAt(LocalDateTime.now())
+                .build();
         recentViewedLinkuRepository.save(rv);
     }
 
@@ -239,7 +250,7 @@ public class LinkuServiceImpl implements LinkuService {
     @Transactional(readOnly = true)
     public List<LinkuResponseDTO.LinkuSimpleDTO> getRecentViewedLinkus(Long userId, int limit) {
         List<RecentViewedLinku> recentList = recentViewedLinkuRepository
-                .findTop10ByUser_IdOrderByViewedAtDesc(userId);
+                .findTop5ByUser_IdOrderByViewedAtDesc(userId);
         List<LinkuResponseDTO.LinkuSimpleDTO> results = new ArrayList<>();
 
         for (RecentViewedLinku rv : recentList) {
