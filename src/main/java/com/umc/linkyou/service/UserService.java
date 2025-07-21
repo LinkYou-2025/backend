@@ -31,4 +31,6 @@ public interface UserService {
     // 인증 코드 검증
     EmailVerificationResponse verifyCode(String email, String authCode);
 
+    // 임시 비밀번호 전송
+    void sendTempPassword(String email);
 }

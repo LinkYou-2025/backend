@@ -91,7 +91,13 @@ public class UserController {
         Long userId = userDetails.getUsers().getId(); // 로그인된 사용자 ID 추출
         userService.updateUserProfile(userId, updateDTO);
 
-        return ApiResponse.onSuccess("프로필이 성공적으로 수정되었습니다.");
+        return ApiResponse.onSuccess("성공입니다.", "마이페이지가 수정되었습니다.");
     }
 
+    // 임시 비밀번호 받기
+    @PostMapping("password/temp")
+    public ApiResponse<String> tempPassword(@RequestParam("email") @Valid String email) {
+        userService.sendTempPassword(email);
+        return ApiResponse.of(SuccessStatus._TEMP_PASSWORD_SENT, "등록된 이메일로 임시 비밀번호를 전송했습니다.");
+    }
 }

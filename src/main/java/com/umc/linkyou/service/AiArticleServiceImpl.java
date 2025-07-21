@@ -4,16 +4,14 @@ import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.converter.AiArticleConverter;
 import com.umc.linkyou.domain.*;
-import com.umc.linkyou.domain.classification.Category;
-import com.umc.linkyou.domain.classification.Emotion;
-import com.umc.linkyou.domain.classification.Job;
-import com.umc.linkyou.domain.classification.Situation;
+import com.umc.linkyou.domain.classification.*;
 import com.umc.linkyou.domain.mapping.SituationJob;
 import com.umc.linkyou.domain.mapping.UsersLinku;
+import com.umc.linkyou.googleImgParser.LinkToImageService;
 import com.umc.linkyou.openApi.OpenAISummaryUtil;
 import com.umc.linkyou.openApi.SummaryAnalysisResultDTO;
 import com.umc.linkyou.repository.*;
-import com.umc.linkyou.repository.EmotionRepository;
+import com.umc.linkyou.repository.LinkuRepository.LinkuRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.SituationRepository;
 import com.umc.linkyou.repository.mapping.SituationJobRepository;
@@ -26,51 +24,52 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiArticleServiceImpl implements AiArticleService {
 
-    private final UsersLinkuRepository usersLinkuRepository;
     private final UserRepository userRepository;
+    private final LinkuRepository linkuRepository;
     private final SituationJobRepository situationJobRepository;
     private final EmotionRepository emotionRepository;
     private final CategoryRepository categoryRepository;
     private final SituationRepository situationRepository;
     private final AiArticleRepository aiArticleRepository;
+    private final UsersLinkuRepository usersLinkuRepository;
     private final OpenAISummaryUtil openAISummaryUtil;
+    private final LinkToImageService linkToImageService;
 
+    /**
+     * 생성
+     * [memo, 유저 감정 등은 users_linku 쿼리해서] 같이 dto로 보냄
+     */
     @Override
     @Transactional
     public AiArticleResponsetDTO.AiArticleResultDTO saveAiArticle(Long linkuId, Long userId) {
 
-        UsersLinku usersLinku = usersLinkuRepository.findById(linkuId)
+        // 1. linku, 유저 조회
+        Linku linku = linkuRepository.findById(linkuId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
-        // aiArticle은 같은 링크에 대한 중복 생성이 불가능합니다.
-        if (aiArticleRepository.existsByUsersLinku(usersLinku)) {
-            throw new GeneralException(ErrorStatus._DUPLICATE_AI_ARTICLE);
-        }
-        Linku linku = usersLinku.getLinku();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
         Job job = user.getJob();
 
-        // 1. Job에 해당하는 Situation 조회
+        // 2. Job에 해당하는 Situation 조회
         List<Situation> situations = situationJobRepository.findAllByJob(job).stream()
                 .map(SituationJob::getSituation)
                 .toList();
         if (situations.isEmpty()) throw new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND);
 
-        // 2. Emotion, Category 전체 조회
+        // 3. Emotion, Category 전체 조회
         List<Emotion> emotions = emotionRepository.findAll();
         List<Category> categories = categoryRepository.findAll();
 
         if (emotions.isEmpty()) throw new GeneralException(ErrorStatus._EMOTION_NOT_FOUND);
         if (categories.isEmpty()) throw new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND);
 
-        // 3. OpenAI 호출 (상황/감정/카테고리 리스트 Entity 그대로 전달)
+        // 4. OpenAI 호출
         SummaryAnalysisResultDTO result;
         try {
             result = openAISummaryUtil.getFullAnalysis(
@@ -81,7 +80,11 @@ public class AiArticleServiceImpl implements AiArticleService {
             throw new GeneralException(ErrorStatus._AI_INVALID_RESPONSE);
         }
 
-        // 4. id 기반 Entity 조인
+
+        //이미지 받아오기
+        String imageUrl = linkToImageService.getRelatedImageFromUrl(linku.getLinku());
+
+        // 5. id 기반 Entity 조인
         Situation selectedSituation = situationRepository.findById(result.getSituationId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._SITUATION_NOT_FOUND));
         Emotion selectedEmotion = emotionRepository.findById(result.getEmotionId())
@@ -89,17 +92,22 @@ public class AiArticleServiceImpl implements AiArticleService {
         Category selectedCategory = categoryRepository.findById(result.getCategoryId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
 
-        // 5. 저장 (엔티티 생성, 저장)
+        // 6. ai_article 저장 (usersLinku 더이상 저장 안 함, linku 기준)
         AiArticle article = AiArticleConverter.toEntity(
                 result,
                 selectedSituation,
                 selectedEmotion,
                 selectedCategory,
-                usersLinku
+                linku,
+                imageUrl
         );
         AiArticle saved = aiArticleRepository.save(article);
 
-        // 6. 반환 DTO 생성
+        // 7. 유저 개별정보(memo 등)는 users_linku에서 조회 (없으면 null 가능)
+        UsersLinku usersLinku = usersLinkuRepository.findByUserAndLinku(user, linku)
+                .orElse(null);
+
+        // 8. 반환 DTO 생성 (memo 등 usersLinku 정보도 포함)
         return AiArticleConverter.toDto(
                 saved,
                 linku,
@@ -107,6 +115,38 @@ public class AiArticleServiceImpl implements AiArticleService {
                 selectedSituation,
                 selectedEmotion,
                 selectedCategory
+        );
+    }
+
+    /**
+     * ai_article 단순조회 (user 개별 메모/감정 포함)
+     */
+    public AiArticleResponsetDTO.AiArticleResultDTO showAiArticle(Long linkuId, Long userId) {
+        Linku linku = linkuRepository.findById(linkuId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+        AiArticle article = aiArticleRepository.findByLinku(linku)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._AI_ARTICLE_NOT_FOUND));
+        // 유저 개별 정보(memo, 감정 등)는 users_linku에서 별도 조회
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+        UsersLinku usersLinku = usersLinkuRepository.findByUserAndLinku(user, linku)
+                .orElse(null);
+
+        Situation situation = article.getSituation();
+        Emotion emotion = null;
+        if (article.getAiFeelingId() != null)
+            emotion = emotionRepository.findById(article.getAiFeelingId()).orElse(null);
+        Category category = null;
+        if (article.getAiCategoryId() != null)
+            category = categoryRepository.findById(article.getAiCategoryId()).orElse(null);
+
+        return AiArticleConverter.toDto(
+                article,
+                linku,
+                usersLinku,
+                situation,
+                emotion,
+                category
         );
     }
 }

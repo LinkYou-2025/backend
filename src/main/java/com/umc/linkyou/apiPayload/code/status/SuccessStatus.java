@@ -17,7 +17,9 @@ public enum SuccessStatus implements BaseCode {
     // 회원가입 관련 응답
     _VERIFICATION_CODE_SENT(HttpStatus.ACCEPTED, "EMAIL202", "인증 코드 전송 성공."),
     _NICKNAME_AVAILABLE(HttpStatus.ACCEPTED, "NICKNAME202", "닉네임 중복 확인 성공."),
-    _EMAIL_VERIFICATION_SUCCESS(HttpStatus.ACCEPTED, "EMAIL202", "이메일 인증 성공.")
+    _EMAIL_VERIFICATION_SUCCESS(HttpStatus.ACCEPTED, "EMAIL202", "이메일 인증 성공."),
+    // 로그인 관련 응답
+    _TEMP_PASSWORD_SENT(HttpStatus.ACCEPTED, "USER205", "임시 비밀번호 전송 성공."),
     ;
     private final HttpStatus httpStatus;
     private final String code;

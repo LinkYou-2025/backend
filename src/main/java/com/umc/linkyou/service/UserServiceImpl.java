@@ -175,7 +175,7 @@ public class UserServiceImpl implements UserService {
     // 인증 코드 전송
     public void sendCode(String toEmail) {
         this.checkDuplicatedEmail(toEmail);
-        String title = "Travel with me 이메일 인증 번호";
+        String title = "Link You 이메일 인증 번호";
         String authCode = this.createCode();
 
         log.info("인증 코드: {}", authCode);
@@ -283,6 +283,84 @@ public class UserServiceImpl implements UserService {
         interestRepository.saveAll(newInterests);
 
         userRepository.save(user);
+    }
+
+    // 임시 비밀번호 생성
+    public String createPassword() {
+        final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
+
+        final String NUMBERS = "0123456789";
+
+        final String SPECIAL_CHAR = "!@#$%^&*()-_+=<>?";
+
+        final String ALL_CHARS = UPPERCASE + LOWERCASE + NUMBERS + SPECIAL_CHAR;
+
+        final int length = 8;
+
+        // 난수 생성기 객체
+        SecureRandom random = new SecureRandom();
+        // 문자열 생성 객체
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getRandomChar(UPPERCASE, random));
+        sb.append(getRandomChar(LOWERCASE, random));
+        sb.append(getRandomChar(NUMBERS, random));
+        sb.append(getRandomChar(SPECIAL_CHAR, random));
+
+        // 나머지 글자 랜덤하게 채우기
+        for(int i = 4; i < length; i++) {
+            sb.append(getRandomChar(ALL_CHARS, random));
+        }
+
+        // 비밀번호를 랜덤하게 섞음
+        return shuffleString(sb.toString(), random);
+    }
+
+    // 랜덤 문자 메서드
+    private static String getRandomChar(String characters, SecureRandom random){
+        return String.valueOf(characters.charAt(random.nextInt(characters.length())));
+    }
+
+    // 문자열 섞는 메서드
+    private static String shuffleString(String input, SecureRandom random){
+        char[] characters = input.toCharArray();
+        for(int i = characters.length - 1; i >= 0; i--){
+            int j = random.nextInt(i + 1);
+            char temp = characters[i];
+            characters[i] = characters[j];
+            characters[j] = temp;
+        }
+        return new String(characters);
+    }
+
+    // 임시 비밀번호 전송
+    @Override
+    public void sendTempPassword(String toEmail) {
+        // 회원의 이메일인지 확인
+        Optional <Users> users = userRepository.findByEmail(toEmail);
+        if(users.isPresent()) {
+            String title = "Link You 임시 비밀번호";
+            // 임시 비밀번호 생성
+            String tempPassword = this.createPassword();
+
+            log.info("인증 코드: {}", tempPassword);
+
+            try {
+                emailService.sendEmail(toEmail, title, tempPassword);
+                emailService.savePassword(toEmail, tempPassword);
+                log.info("이메일 전송 완료: {}", toEmail);
+            } catch (Exception e) {
+                log.error("이메일 전송 실패: {}", toEmail, e);
+                throw e;
+            }
+        }else {
+            // 가입되지 않은 이메일인 경우
+            throw new UserHandler(ErrorStatus._USER_NOT_FOUND);
+        }
+
+
     }
 }
 

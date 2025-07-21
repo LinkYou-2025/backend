@@ -4,13 +4,15 @@ import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.converter.EmailConverter;
 import com.umc.linkyou.domain.EmailVerification;
-import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.repository.EmailRepository;
+import com.umc.linkyou.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,8 @@ public class EmailService {
 
     private final JavaMailSender emailSender;
     private final EmailRepository emailRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void sendEmail(String toEmail,
                           String title,
@@ -63,5 +67,21 @@ public class EmailService {
         message.setText(text);
 
         return message;
+    }
+
+    // 임시 비밀번호 저장
+    public void savePassword(String toEmail, String password) {
+        Optional<Users> optionalUser = userRepository.findByEmail(toEmail);
+
+        if (optionalUser.isPresent()) {
+            Users user = optionalUser.get();
+
+            String encodedPassword = passwordEncoder.encode(password);
+
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+        } else {
+            throw new UserHandler(ErrorStatus._USER_NOT_FOUND);
+        }
     }
 }
