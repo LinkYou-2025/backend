@@ -50,7 +50,7 @@ public class AiArticleConverter {
                 .aiFeelingName(selectedEmotion != null ? selectedEmotion.getName() : null)
                 .aiFeelingId(entity.getAiFeelingId())
                 .aiCategoryId(entity.getAiCategoryId())
-                .categoryName(selectedCategory != null ? selectedCategory.getName() : null)
+                .categoryName(selectedCategory != null ? selectedCategory.getCategoryName() : null)
                 .summary(entity.getSummary())
                 .imgUrl(entity.getImgUrl())
                 .memo(usersLinku != null ? usersLinku.getMemo() : null)

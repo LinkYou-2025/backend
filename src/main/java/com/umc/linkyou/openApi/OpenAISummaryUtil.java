@@ -66,7 +66,7 @@ public class OpenAISummaryUtil {
         String categoryList = categories.stream()
                 .map(c -> {
                     var entity = (com.umc.linkyou.domain.classification.Category) c;
-                    return "- id: " + entity.getCategoryId() + ", name: \"" + entity.getName() + "\"";
+                    return "- id: " + entity.getCategoryId() + ", name: \"" + entity.getCategoryName() + "\"";
                 })
                 .collect(Collectors.joining("\n"));
 

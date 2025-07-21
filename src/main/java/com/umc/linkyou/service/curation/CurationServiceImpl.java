@@ -6,16 +6,23 @@ import com.umc.linkyou.domain.classification.CurationMent;
 import com.umc.linkyou.domain.enums.CurationTopLogType;
 import com.umc.linkyou.domain.log.CurationTopLog;
 import com.umc.linkyou.repository.CurationMentRepository;
+import com.umc.linkyou.service.curation.gpt.GptService;
+import com.umc.linkyou.service.curation.utils.ThumbnailUrlProvider;
 import com.umc.linkyou.web.dto.curation.CreateCurationRequest;
 import com.umc.linkyou.repository.LogRepository.CurationTopLogRepository;
 import com.umc.linkyou.repository.CurationRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.web.dto.curation.CurationDetailResponse;
+import com.umc.linkyou.web.dto.curation.CurationLatestResponse;
+import com.umc.linkyou.web.dto.curation.GptMentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -36,11 +43,14 @@ public class CurationServiceImpl implements CurationService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        // 1-2. 썸네일 URL 생성
+        String thumbnailUrl = ThumbnailUrlProvider.getUrlForMonth(request.getMonth());
+
         // 2. 큐레이션 객체 생성
         Curation curation = Curation.builder()
                 .user(user)
                 .month(request.getMonth())
-                .thumbnailUrl(request.getThumbnailUrl())
+                .thumbnailUrl(thumbnailUrl)
                 .build();
 
         // 3. 저장
@@ -51,10 +61,39 @@ public class CurationServiceImpl implements CurationService {
 
         return curation;
     }
+    /**
+     * 유저의 큐레이션을 자동생성
+     */
+    @Override
+    @Transactional
+    public void generateMonthlyCurationForAllUsers() {
+        YearMonth prevMonth = YearMonth.now().minusMonths(1);
+        String month = prevMonth.toString();
+        String thumbnailUrl = ThumbnailUrlProvider.getUrlForMonth(month);
+
+        List<Users> users = userRepository.findAll();
+        for (Users user : users) {
+            if (curationRepository.existsByUserAndMonth(user, month)) continue;
+
+            Curation curation = Curation.builder()
+                    .user(user)
+                    .month(month)
+                    .thumbnailUrl(thumbnailUrl)
+                    .build();
+
+            curationRepository.save(curation);
+            curationTopLogService.calculateAndSaveTopLogs(user.getId(), curation);
+        }
+    }
 
     private final CurationTopLogRepository curationTopLogRepository;
     private final CurationMentRepository curationMentRepository;
+    private final GptService gptService;
 
+
+    /**
+     * 유저의 큐레이션을 detail 정보를 가져옴
+     */
     @Override
     @Transactional(readOnly = true)
     public CurationDetailResponse getCurationDetail(Long curationId) {
@@ -70,24 +109,43 @@ public class CurationServiceImpl implements CurationService {
                 .map(CurationTopLog::getTagName)
                 .toList();
 
-        // 2. topLogs 중 type = EMOTION 인 것 중 count 가장 높은 1개 추출
-        CurationTopLog topEmotionLog = topLogs.stream()
-                .filter(log -> log.getType() == CurationTopLogType.EMOTION)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("감정 기반 태그 없음"));
+        // 2. 감정 기반 로그 중 count 가장 높은 것 추출 (top3에 없어도 상관없게)
+        CurationTopLog topEmotionLog = curationTopLogRepository.findTopEmotionLogByCurationId(curationId);
 
-        Long emotionId = topEmotionLog.getRefId();
+        String emotionName;
+        Long emotionId = null;
 
-        // 3. 해당 감정 ID로 멘트 랜덤 조회
-        List<CurationMent> mentList = curationMentRepository.findAllByEmotion_EmotionId(emotionId);
-        if (mentList.isEmpty()) {
-            throw new IllegalArgumentException("해당 감정에 대한 멘트 없음");
+        if (topEmotionLog == null || topEmotionLog.getCount() < 2) {
+            emotionName = "평온";
+        } else {
+            emotionName = topEmotionLog.getTagName();
+            emotionId = topEmotionLog.getRefId(); // fallback 용
         }
-        CurationMent ment = mentList.get(new Random().nextInt(mentList.size()));
+
+        String header = null;
+        String footer = null;
+
+        // GPT 기반 멘트 요청
+        GptMentResponse gptResponse = gptService.generateMent(emotionName);
+
+        if (gptResponse != null) {
+            header = gptResponse.getHeader();
+            footer = gptResponse.getFooter();
+        }
+
+        // ❗ 실패 시 DB fallback (원래 멘트 추천로직)
+        if (header == null || footer == null) {
+            List<CurationMent> mentList = curationMentRepository.findAllByEmotion_EmotionId(emotionId);
+            if (mentList.isEmpty()) throw new IllegalArgumentException("멘트 없음");
+            CurationMent fallback = mentList.get(new Random().nextInt(mentList.size()));
+
+            header = fallback.getHeaderText();
+            footer = fallback.getFooterText();
+        }
 
         // 4. (닉네임) 치환
-        String header = ment.getHeaderText().replace("(닉네임)", nickname);
-        String footer = ment.getFooterText().replace("(닉네임)", nickname);
+        header = header.replace("(닉네임)", nickname);
+        footer = footer.replace("(닉네임)", nickname);
 
         // 5. 응답 반환
         return CurationDetailResponse.builder()
@@ -98,4 +156,20 @@ public class CurationServiceImpl implements CurationService {
                 .footerMent(footer)
                 .build();
     }
+
+
+    /**
+     * 유저의 최근 큐레이션 정보를 가져옴
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CurationLatestResponse> getLatestCuration(Long userId) {
+        return curationRepository.findTopByUser_IdOrderByCreatedAtDesc(userId)
+                .map(curation -> new CurationLatestResponse(
+                        curation.getCurationId(),
+                        curation.getMonth(),         // YearMonth → "2025-07"
+                        curation.getThumbnailUrl()
+                ));
+    }
+
 }

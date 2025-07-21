@@ -41,4 +41,12 @@ public class UserConverter {
                 .build();
     }
 
+    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(String nickName, Long linkCount, Long folderCount, Long aiLinkCount) {
+        return UserResponseDTO.UserInfoDTO.builder()
+                .nickname(nickName)
+                .myLinku(linkCount)
+                .myFolder(folderCount)
+                .myAiLinku(aiLinkCount)
+                .build();
+    }
 }

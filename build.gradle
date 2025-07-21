@@ -27,7 +27,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -72,6 +72,9 @@ dependencies {
 //jsoup 크롤링
 	implementation 'org.jsoup:jsoup:1.17.2'
 
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//implementation 'org.springframework.boot:spring-boot-starter-scheduling'
 }
 
 clean {
