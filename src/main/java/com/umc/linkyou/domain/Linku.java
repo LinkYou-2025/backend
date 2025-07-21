@@ -32,8 +32,7 @@ public class Linku extends BaseEntity {
     @JoinColumn(name = "aiArticle_id")
     private AiArticle aiArticle;
 
-
-    @Column(name = "linku_title", length = 255)
-    private String linkuTitle;
+    @Column(columnDefinition = "text", nullable = false)
+    private String title;
 
 }

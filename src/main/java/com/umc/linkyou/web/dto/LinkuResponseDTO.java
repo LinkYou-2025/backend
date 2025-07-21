@@ -19,6 +19,7 @@ public class LinkuResponseDTO {
         private String memo;
         private Long emotionId;
         private String domain;
+        private String title;
         private String domainImageUrl;
         private String linkuImageUrl;
         private LocalDateTime createdAt;
@@ -32,6 +33,7 @@ public class LinkuResponseDTO {
         private Long categoryId;
         private String memo;
         private Long emotionId;
+        private String title;
         private String domain;
         private String domainImageUrl;
         private String linkuImageUrl;
@@ -43,6 +45,7 @@ public class LinkuResponseDTO {
         private boolean isExist;
         private Long userId;
         private Long linkuId;
+        private String title;
         private String memo;
         private Long emotionId;
         private LocalDateTime createdAt;

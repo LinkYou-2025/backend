@@ -77,8 +77,10 @@ public class LinkuServiceImpl implements LinkuService {
         Folder folder = folderRepository.findById(16L)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
-        //새로운 링크 생성하기
-        Linku linku = LinkuConverter.toLinku(dto.getLinku(), category, domain);
+        // 1. 제목 크롤링!
+        String crawledTitle = linkToImageService.extractTitle(dto.getLinku());
+        // 2. 링크 생성 (제목 반드시 포함)
+        Linku linku = LinkuConverter.toLinku(dto.getLinku(), category, domain, crawledTitle);
         linkuRepository.save(linku);
 
         //요청 보낸 사용자 저장
@@ -102,7 +104,7 @@ public class LinkuServiceImpl implements LinkuService {
         linkuFolderRepository.save(linkuFolder);
 
         return LinkuConverter.toLinkuResultDTO(
-                userId, linku, usersLinku, linkuFolder, category, emotion, domain
+                userId, linku, usersLinku, linkuFolder, category,domain
         );
     }
 // 링큐 생성
@@ -209,7 +211,7 @@ public class LinkuServiceImpl implements LinkuService {
 
         // 5. DTO 변환 및 반환
         LinkuResponseDTO.LinkuResultDTO dto = LinkuConverter.toLinkuResultDTO(
-                userId, linku, usersLinku, linkuFolder, category, emotion, domain
+                userId, linku, usersLinku, linkuFolder, category, domain
         );
         return ResponseEntity.ok(ApiResponse.onSuccess("링크 상세 조회 성공", dto));
     } //링크 상세조회
