@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface RecentViewedLinkuRepository extends JpaRepository<RecentViewedLinku, Long> {
     Optional<RecentViewedLinku> findByUser_IdAndLinku_LinkuId(Long userId, Long linkuId);
+
+    List<RecentViewedLinku> findTop10ByUser_IdOrderByViewedAtDesc(Long userId);
 }

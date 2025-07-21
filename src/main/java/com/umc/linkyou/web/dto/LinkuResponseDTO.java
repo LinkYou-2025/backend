@@ -24,6 +24,18 @@ public class LinkuResponseDTO {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
+    @Getter
+    @Setter
+    @Builder
+    public static class LinkuSimpleDTO {
+        private Long linkuId;
+        private Long categoryId;
+        private String memo;
+        private Long emotionId;
+        private String domain;
+        private String domainImageUrl;
+        private String linkuImageUrl;
+    }
     @Setter
     @Getter
     @Builder

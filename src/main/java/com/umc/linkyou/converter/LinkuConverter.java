@@ -97,6 +97,16 @@ public class LinkuConverter {
                 .domain(domain)
                 .build();
     }
-
+    public static LinkuResponseDTO.LinkuSimpleDTO toLinkuSimpleDTO(Linku linku, UsersLinku usersLinku, Domain domain) {
+        return LinkuResponseDTO.LinkuSimpleDTO.builder()
+                .linkuId(linku.getLinkuId())
+                .categoryId(linku.getCategory() != null ? linku.getCategory().getCategoryId() : null)
+                .memo(usersLinku != null ? usersLinku.getMemo() : null)
+                .emotionId(usersLinku != null && usersLinku.getEmotion() != null ? usersLinku.getEmotion().getEmotionId() : null)
+                .domain(domain != null ? domain.getName() : null)
+                .domainImageUrl(domain != null ? domain.getImageUrl() : null)
+                .linkuImageUrl(usersLinku != null ? usersLinku.getImageUrl() : null)
+                .build();
+    } //리스트로 반환할때 쓰이는 것
 
 }

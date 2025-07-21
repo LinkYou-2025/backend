@@ -18,6 +18,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/linku")
 @RequiredArgsConstructor
@@ -73,5 +75,19 @@ public class LinkuController {
         Long userId = userDetails.getUsers().getId();
         return linkuService.detailGetLinku(userId, linkuid);
     } //linku 상세보기
+
+    @GetMapping("/recent")
+    public ResponseEntity<ApiResponse<List<LinkuResponseDTO.LinkuSimpleDTO>>> getRecentViewedLinkus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "10") int limit) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null));
+        }
+        Long userId = userDetails.getUsers().getId();
+        List<LinkuResponseDTO.LinkuSimpleDTO> result = linkuService.getRecentViewedLinkus(userId, limit);
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+    } //최근 열람한 링크 보기
+
 
 }

@@ -22,7 +22,7 @@ import com.umc.linkyou.repository.mapping.LinkuFolderRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
 import com.umc.linkyou.web.dto.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.LinkuResponseDTO;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -234,6 +235,25 @@ public class LinkuServiceImpl implements LinkuService {
         recentViewedLinkuRepository.save(rv);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<LinkuResponseDTO.LinkuSimpleDTO> getRecentViewedLinkus(Long userId, int limit) {
+        List<RecentViewedLinku> recentList = recentViewedLinkuRepository
+                .findTop10ByUser_IdOrderByViewedAtDesc(userId);
+        List<LinkuResponseDTO.LinkuSimpleDTO> results = new ArrayList<>();
+
+        for (RecentViewedLinku rv : recentList) {
+            Linku linku = rv.getLinku();
+            UsersLinku usersLinku = usersLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linku.getLinkuId())
+                    .orElse(null);
+
+            Domain domain = linku.getDomain();
+
+            LinkuResponseDTO.LinkuSimpleDTO dto = LinkuConverter.toLinkuSimpleDTO(linku, usersLinku, domain);
+            results.add(dto);
+        }
+        return results;
+    }
 
 
 
