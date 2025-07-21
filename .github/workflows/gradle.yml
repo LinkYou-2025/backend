@@ -50,8 +50,8 @@ jobs:
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t app .
-          docker tag app ${{ secrets.DOCKER_USERNAME }}/`docker_username`:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/`docker_username`:latest
+          docker tag app ${{ secrets.DOCKER_REPO_NAME }}:latest
+          docker push ${{ secrets.DOCKER_REPO_NAME }}:latest
 
       - name: Deploy to dev
         uses: appleboy/ssh-action@master
@@ -61,10 +61,13 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/`docker_username`:latest
-            sudo docker stop $(sudo docker ps -a -q)
-            sudo docker run -d --log-driver=syslog -p 8080:8080 -e TZ=Asia/Seoul -e SPRING_PROFILES_ACTIVE= ${{ secrets.DOCKER_USERNAME }}/`docker_username`:latest
-            sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q)
+            sudo docker pull ${{ secrets.DOCKER_REPO_NAME }}:latest
+            sudo docker stop goodluckynews || true
+            sudo docker rm goodluckynews || true
+            sudo docker run -d --name goodluckynews --log-driver=syslog -p 8080:8080 \
+              -e TZ=Asia/Seoul \
+              -e SPRING_PROFILES_ACTIVE= \
+              ${{ secrets.DOCKER_REPO_NAME }}:latest
             sudo docker image prune -a -f
       - name: Check logs and fail if MariaDB driver missing
         uses: appleboy/ssh-action@master
