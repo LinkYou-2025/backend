@@ -226,11 +226,11 @@ public class LinkuServiceImpl implements LinkuService {
             return;
         }
 
-        // 2. 없으면, 기존 데이터 개수 체크 → 5개 이상이면 가장 오래된 것 삭제
+        // 2. 없으면, 기존 데이터 개수 체크 → 10개 이상이면 가장 오래된 것 삭제
         List<RecentViewedLinku> allRecents = recentViewedLinkuRepository
                 .findAllByUser_IdOrderByViewedAtDesc(userId); // 이 때 desc/asc 원하는 대로
 
-        if (allRecents.size() >= 5) {
+        if (allRecents.size() >= 10) {
             // 가장 오래된 열람(== viewedAt이 가장 작은/오래된 것) 삭제
             // 만약 OrderByViewedAtDesc라면, 마지막 요소가 가장 오래된 것
             RecentViewedLinku toDelete = allRecents.get(allRecents.size() - 1); // list는 desc로 옴
@@ -250,7 +250,7 @@ public class LinkuServiceImpl implements LinkuService {
     @Transactional(readOnly = true)
     public List<LinkuResponseDTO.LinkuSimpleDTO> getRecentViewedLinkus(Long userId, int limit) {
         List<RecentViewedLinku> recentList = recentViewedLinkuRepository
-                .findTop5ByUser_IdOrderByViewedAtDesc(userId);
+                .findTop10ByUser_IdOrderByViewedAtDesc(userId);
         List<LinkuResponseDTO.LinkuSimpleDTO> results = new ArrayList<>();
 
         for (RecentViewedLinku rv : recentList) {
