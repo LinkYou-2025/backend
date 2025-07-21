@@ -22,7 +22,7 @@ import com.umc.linkyou.repository.mapping.LinkuFolderRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
 import com.umc.linkyou.web.dto.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.LinkuResponseDTO;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,6 +32,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +51,7 @@ public class LinkuServiceImpl implements LinkuService {
     private final UserRepository userRepository;
     private final AwsS3Service awsS3Service;
     private final LinkToImageService linkToImageService;
+    private final RecentViewedLinkuRepository recentViewedLinkuRepository;
 
     @Override
     @Transactional
@@ -74,8 +77,10 @@ public class LinkuServiceImpl implements LinkuService {
         Folder folder = folderRepository.findById(16L)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
-        //새로운 링크 생성하기
-        Linku linku = LinkuConverter.toLinku(dto.getLinku(), category, domain);
+        // 1. 제목 크롤링!
+        String crawledTitle = linkToImageService.extractTitle(dto.getLinku());
+        // 2. 링크 생성 (제목 반드시 포함)
+        Linku linku = LinkuConverter.toLinku(dto.getLinku(), category, domain, crawledTitle);
         linkuRepository.save(linku);
 
         //요청 보낸 사용자 저장
@@ -99,7 +104,7 @@ public class LinkuServiceImpl implements LinkuService {
         linkuFolderRepository.save(linkuFolder);
 
         return LinkuConverter.toLinkuResultDTO(
-                userId, linku, usersLinku, linkuFolder, category, emotion, domain
+                userId, linku, usersLinku, linkuFolder, category,domain
         );
     }
 // 링큐 생성
@@ -182,6 +187,87 @@ public class LinkuServiceImpl implements LinkuService {
             return false;
         }
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuResultDTO>> detailGetLinku(Long userId, Long linkuId) {
+        // 1. 해당 사용자가 이 링크(linkuId)를 저장한 UsersLinku 찾기.
+        UsersLinku usersLinku = usersLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_LINKU_NOT_FOUND));
+        // 최근 열람 기록 upDate
+        updateRecentViewedLinku(userId, linkuId);
+
+        // 2. Linku는 UsersLinku에서 직접 꺼낼 수 있음
+        Linku linku = usersLinku.getLinku();
+
+        // 3. 기타 연관 엔티티 처리
+        Category category = linku.getCategory();
+        Emotion emotion = usersLinku.getEmotion();
+        Domain domain = linku.getDomain();
+
+        // 4. LinkuFolder 최신 1개 조회
+        LinkuFolder linkuFolder =
+                linkuFolderRepository.findFirstByUsersLinku_UserLinkuIdOrderByLinkuFolderIdDesc(usersLinku.getUserLinkuId()).orElse(null);
+
+        // 5. DTO 변환 및 반환
+        LinkuResponseDTO.LinkuResultDTO dto = LinkuConverter.toLinkuResultDTO(
+                userId, linku, usersLinku, linkuFolder, category, domain
+        );
+        return ResponseEntity.ok(ApiResponse.onSuccess("링크 상세 조회 성공", dto));
+    } //링크 상세조회
+
+
+    @Transactional
+    public void updateRecentViewedLinku(Long userId, Long linkuId) {
+// 1. 이미 열람 기록이 있으면 viewedAt만 갱신
+        RecentViewedLinku rv = recentViewedLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
+                .orElse(null);
+        if (rv != null) {
+            rv.setViewedAt(LocalDateTime.now());
+            recentViewedLinkuRepository.save(rv);
+            return;
+        }
+
+        // 2. 없으면, 기존 데이터 개수 체크 → 10개 이상이면 가장 오래된 것 삭제
+        List<RecentViewedLinku> allRecents = recentViewedLinkuRepository
+                .findAllByUser_IdOrderByViewedAtDesc(userId); // 이 때 desc/asc 원하는 대로
+
+        if (allRecents.size() >= 10) {
+            // 가장 오래된 열람(== viewedAt이 가장 작은/오래된 것) 삭제
+            // 만약 OrderByViewedAtDesc라면, 마지막 요소가 가장 오래된 것
+            RecentViewedLinku toDelete = allRecents.get(allRecents.size() - 1); // list는 desc로 옴
+            recentViewedLinkuRepository.delete(toDelete);
+        }
+
+        // 3. insert 새로 생성
+        rv = RecentViewedLinku.builder()
+                .user(userRepository.getReferenceById(userId))
+                .linku(linkuRepository.getReferenceById(linkuId))
+                .viewedAt(LocalDateTime.now())
+                .build();
+        recentViewedLinkuRepository.save(rv);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LinkuResponseDTO.LinkuSimpleDTO> getRecentViewedLinkus(Long userId, int limit) {
+        List<RecentViewedLinku> recentList = recentViewedLinkuRepository
+                .findTop10ByUser_IdOrderByViewedAtDesc(userId);
+        List<LinkuResponseDTO.LinkuSimpleDTO> results = new ArrayList<>();
+
+        for (RecentViewedLinku rv : recentList) {
+            Linku linku = rv.getLinku();
+            UsersLinku usersLinku = usersLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linku.getLinkuId())
+                    .orElse(null);
+
+            Domain domain = linku.getDomain();
+
+            LinkuResponseDTO.LinkuSimpleDTO dto = LinkuConverter.toLinkuSimpleDTO(linku, usersLinku, domain);
+            results.add(dto);
+        }
+        return results;
+    }
+
 
 
 }

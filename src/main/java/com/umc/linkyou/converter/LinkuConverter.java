@@ -27,7 +27,6 @@ public class LinkuConverter {
             UsersLinku usersLinku,
             LinkuFolder linkuFolder,
             Category category,
-            Emotion emotion,
             Domain domain
     ) {
         return LinkuResponseDTO.LinkuResultDTO.builder()
@@ -39,6 +38,7 @@ public class LinkuConverter {
                 .memo(usersLinku.getMemo())
                 .emotionId(usersLinku.getEmotion().getEmotionId())
                 .domain(domain.getName())
+                .title(linku.getTitle())
                 .domainImageUrl(domain.getImageUrl())
                 .linkuImageUrl(usersLinku.getImageUrl())
                 .createdAt(linku.getCreatedAt())
@@ -54,6 +54,7 @@ public class LinkuConverter {
                     .isExist(false)
                     .userId(userId)
                     .linkuId(null)
+                    .title(null)
                     .memo(null)
                     .emotionId(null)
                     .createdAt(null)
@@ -64,6 +65,7 @@ public class LinkuConverter {
                 .isExist(true)
                 .userId(userId)
                 .linkuId(usersLinku.getLinku().getLinkuId())
+                .title(usersLinku.getLinku().getTitle())
                 .memo(usersLinku.getMemo())
                 .emotionId(usersLinku.getEmotion().getEmotionId())
                 .createdAt(usersLinku.getLinku().getCreatedAt())
@@ -90,13 +92,25 @@ public class LinkuConverter {
     }
 
     // Linku 생성
-    public static Linku toLinku(String linkuUrl, Category category, Domain domain) {
+    public static Linku toLinku(String linkuUrl, Category category, Domain domain, String title) {
         return Linku.builder()
                 .linku(linkuUrl)
                 .category(category)
                 .domain(domain)
+                .title(title != null ? title : "")
                 .build();
     }
-
+    public static LinkuResponseDTO.LinkuSimpleDTO toLinkuSimpleDTO(Linku linku, UsersLinku usersLinku, Domain domain) {
+        return LinkuResponseDTO.LinkuSimpleDTO.builder()
+                .linkuId(linku.getLinkuId())
+                .categoryId(linku.getCategory() != null ? linku.getCategory().getCategoryId() : null)
+                .memo(usersLinku != null ? usersLinku.getMemo() : null)
+                .emotionId(usersLinku != null && usersLinku.getEmotion() != null ? usersLinku.getEmotion().getEmotionId() : null)
+                .title(linku.getTitle())
+                .domain(domain != null ? domain.getName() : null)
+                .domainImageUrl(domain != null ? domain.getImageUrl() : null)
+                .linkuImageUrl(usersLinku != null ? usersLinku.getImageUrl() : null)
+                .build();
+    } //리스트로 반환할때 쓰이는 것
 
 }
