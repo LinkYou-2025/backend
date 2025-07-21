@@ -23,6 +23,7 @@ public class UserConverter {
                 .password(request.getPassword())
                 .gender(gender)
                 .job(job)
+                .status("ACTIVE")
                 .build();
     }
 
@@ -47,6 +48,16 @@ public class UserConverter {
                 .myLinku(linkCount)
                 .myFolder(folderCount)
                 .myAiLinku(aiLinkCount)
+                .build();
+    }
+    public static UserResponseDTO.withDrawalResultDTO toWithDrawalResultDTO(Users user) {
+        if (user == null) return null;
+        return UserResponseDTO.withDrawalResultDTO.builder()
+                .userId(user.getId())
+                .nickname(user.getNickName())
+                .createdAt(user.getCreatedAt())
+                .status(user.getStatus())
+                .inactiveDate(user.getInactiveDate())
                 .build();
     }
 }

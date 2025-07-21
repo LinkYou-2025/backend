@@ -100,4 +100,16 @@ public class UserController {
         userService.sendTempPassword(email);
         return ApiResponse.of(SuccessStatus._TEMP_PASSWORD_SENT, "등록된 이메일로 임시 비밀번호를 전송했습니다.");
     }
+
+    //회원 탈퇴
+    @DeleteMapping("/inactive")
+    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
+        }
+        Long userId = userDetails.getUsers().getId();
+        Users user = userService.withdrawUser(userId);
+        return ApiResponse.onSuccess(UserConverter.toWithDrawalResultDTO(user));
+    }
+
 }

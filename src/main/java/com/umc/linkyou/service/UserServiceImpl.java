@@ -30,6 +30,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -359,8 +360,35 @@ public class UserServiceImpl implements UserService {
             // 가입되지 않은 이메일인 경우
             throw new UserHandler(ErrorStatus._USER_NOT_FOUND);
         }
-
-
     }
+
+    @Override
+    @Transactional
+    public Users withdrawUser(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+        user.setStatus("INACTIVE");
+        user.setInactiveDate(LocalDateTime.now());
+        userRepository.save(user);
+        return user;
+    }
+    // 매일 새벽 3시 실행
+    @Scheduled(cron = "0 0 3 * * ?")
+    @Transactional
+    public void deleteCompletelyInactiveUsers() {
+        LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
+        List<Users> toDelete = userRepository.findAllByStatusAndInactiveDateBefore("INACTIVE", tenDaysAgo);
+        if (!toDelete.isEmpty()) {
+            // 삭제 대상 사용자 정보(예: id, email, nickName) 로그 문자열 생성
+            String infoList = toDelete.stream()
+                    .map(u -> String.format("id=%d, email=%s, nickName=%s", u.getId(), u.getEmail(), u.getNickName()))
+                    .collect(Collectors.joining("; "));
+
+            userRepository.deleteAll(toDelete);
+
+            log.info("탈퇴 후 10일 경과 {}명 완전삭제 완료, 삭제유저: [{}]", toDelete.size(), infoList);
+        }
+    }
+
 }
 
