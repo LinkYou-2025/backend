@@ -32,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +50,7 @@ public class LinkuServiceImpl implements LinkuService {
     private final UserRepository userRepository;
     private final AwsS3Service awsS3Service;
     private final LinkToImageService linkToImageService;
+    private final RecentViewedLinkuRepository recentViewedLinkuRepository;
 
     @Override
     @Transactional
@@ -189,6 +191,8 @@ public class LinkuServiceImpl implements LinkuService {
         // 1. 해당 사용자가 이 링크(linkuId)를 저장한 UsersLinku 찾기.
         UsersLinku usersLinku = usersLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_LINKU_NOT_FOUND));
+        // 최근 열람 기록 upDate
+        updateRecentViewedLinku(userId, linkuId);
 
         // 2. Linku는 UsersLinku에서 직접 꺼낼 수 있음
         Linku linku = usersLinku.getLinku();
@@ -207,7 +211,29 @@ public class LinkuServiceImpl implements LinkuService {
                 userId, linku, usersLinku, linkuFolder, category, emotion, domain
         );
         return ResponseEntity.ok(ApiResponse.onSuccess("링크 상세 조회 성공", dto));
+    } //링크 상세조회
+
+
+    @Transactional
+    public void updateRecentViewedLinku(Long userId, Long linkuId) {
+        // 이미 기록이 있으면 viewCount, viewedAt만 업데이트
+        RecentViewedLinku rv = recentViewedLinkuRepository.findByUser_IdAndLinku_LinkuId(userId, linkuId)
+                .orElse(null);
+        if (rv != null) {
+            rv.setViewedAt(LocalDateTime.now());
+            rv.setViewCount(rv.getViewCount() + 1);
+        } else {
+            // 없으면 새로 insert
+            rv = RecentViewedLinku.builder()
+                    .user(userRepository.getReferenceById(userId))
+                    .linku(linkuRepository.getReferenceById(linkuId))
+                    .viewedAt(LocalDateTime.now())
+                    .viewCount(1L)
+                    .build();
+        }
+        recentViewedLinkuRepository.save(rv);
     }
+
 
 
 
