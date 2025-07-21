@@ -62,9 +62,9 @@ jobs:
           script: |
             sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             sudo docker pull ${{ secrets.DOCKER_REPO_NAME }}:latest
-            sudo docker stop goodluckynews || true
-            sudo docker rm goodluckynews || true
-            sudo docker run -d --name goodluckynews --log-driver=syslog -p 8080:8080 \
+            sudo docker stop linku || true
+            sudo docker rm linku || true
+            sudo docker run -d --name linku --log-driver=syslog -p 8080:8080 \
               -e TZ=Asia/Seoul \
               -e SPRING_PROFILES_ACTIVE= \
               ${{ secrets.DOCKER_REPO_NAME }}:latest
