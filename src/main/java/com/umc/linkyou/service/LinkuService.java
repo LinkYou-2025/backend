@@ -17,4 +17,6 @@ public interface LinkuService {
     ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuResultDTO>> detailGetLinku(Long userId, Long linkuId);
 
     List<LinkuResponseDTO.LinkuSimpleDTO> getRecentViewedLinkus(Long userId, int limit);
+
+    LinkuResponseDTO.LinkuResultDTO updateLinku(Long userId, Long linkuId, LinkuRequestDTO.LinkuUpdateDTO updateDTO);
 }

@@ -86,8 +86,23 @@ public class LinkuController {
         }
         Long userId = userDetails.getUsers().getId();
         List<LinkuResponseDTO.LinkuSimpleDTO> result = linkuService.getRecentViewedLinkus(userId, limit);
-        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+        return ResponseEntity.ok(ApiResponse.onSuccess("최근 열람한 링크를 가져왔습니다.",result));
     } //최근 열람한 링크 보기
+
+    @PatchMapping(value = "/{linkuId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<LinkuResponseDTO.LinkuResultDTO>> updateLinku(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long linkuId,
+            @RequestBody LinkuRequestDTO.LinkuUpdateDTO updateDTO
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null));
+        }
+        Long userId = userDetails.getUsers().getId();
+        LinkuResponseDTO.LinkuResultDTO result = linkuService.updateLinku(userId, linkuId, updateDTO);
+        return ResponseEntity.ok(ApiResponse.onSuccess("링크 수정에 성공했습니다.",result));
+    } //링큐 수정하기
 
 
 }
