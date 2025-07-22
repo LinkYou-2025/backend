@@ -6,6 +6,7 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.enums.Gender;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Interests;
@@ -244,12 +245,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO.UserInfoDTO userInfo(Long userId){
         String nickName = userQueryRepository.findNicknameByUserId(userId);
+        String email = userQueryRepository.findEmailByUserId(userId);
+        Gender gender = userQueryRepository.findGenderByUserId(userId);
+        Job job = userQueryRepository.findJobByUserId(userId);
         Long linkCount = userQueryRepository.countLinksByUserId(userId);
         Long folderCount = userQueryRepository.countFoldersByUserId(userId);
         Long aiLinkCount = userQueryRepository.countAiLinksByUserId(userId);
 
         return UserConverter.toUserInfoDTO(
-                nickName, linkCount, folderCount, aiLinkCount
+                nickName, email, gender, job, linkCount, folderCount, aiLinkCount
         );
     }
 
