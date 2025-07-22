@@ -147,10 +147,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO.LoginResultDTO loginUser(UserRequestDTO.LoginRequestDTO request) {
         Users user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new UserHandler(ErrorStatus._USER_NOT_FOUND));
+                .orElseThrow(()-> new UserHandler(ErrorStatus._LOGIN_FAILED));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new UserHandler(ErrorStatus._INVALID_PASSWORD);
+            throw new UserHandler(ErrorStatus._LOGIN_FAILED);
         }
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
