@@ -75,7 +75,7 @@ public class UserController {
     }
 
     // 마이페이지 수정
-    @PutMapping("/profile")
+    @PatchMapping("/profile")
     public ApiResponse<String> updateUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UserRequestDTO.UpdateProfileDTO updateDTO

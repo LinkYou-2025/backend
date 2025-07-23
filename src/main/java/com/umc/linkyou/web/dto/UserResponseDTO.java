@@ -1,5 +1,7 @@
 package com.umc.linkyou.web.dto;
 
+import com.umc.linkyou.domain.classification.Job;
+import com.umc.linkyou.domain.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +36,12 @@ public class UserResponseDTO {
     @AllArgsConstructor
     public static class UserInfoDTO{
         String nickname;
+
+        String email;
+
+        Gender gender;
+
+        Job job;
 
         Long myLinku; // 나의 링크
 

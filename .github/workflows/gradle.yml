@@ -2,9 +2,9 @@ name: linkyou
 
 on:
   push:
-    branches: [ "develop", "feat/#62-temp-password" ]
+    branches: [ "develop", "feat/#69-mypage-info-add" ]
   pull_request:
-    branches: [ "develop", "feat/#62-temp-password" ]
+    branches: [ "develop", "feat/#69-mypage-info-add" ]
   workflow_dispatch:
 
 permissions:

@@ -20,6 +20,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "COMMON4012", "잘못된 비밀번호입니다."),
 
     // 로그인 회원가입 에러
+    _LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "COMMON4013", "이메일 주소 또는 비밀번호를 다시 확인하세요."),
     _DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "COMMON403", "중복된 닉네임입니다."),
     _DUPLICATE_JOIN_REQUEST(HttpStatus.CONFLICT, "COMMON403", "중복된 이메일입니다."),
     _VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON404", "인증 코드 검증 실패"),
