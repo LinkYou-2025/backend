@@ -1,4 +1,4 @@
-package com.umc.linkyou.web.dto;
+package com.umc.linkyou.web.dto.linku;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

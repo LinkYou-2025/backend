@@ -1,4 +1,4 @@
-package com.umc.linkyou.web.dto;
+package com.umc.linkyou.web.dto.linku;
 
 import lombok.Builder;
 import lombok.Getter;
