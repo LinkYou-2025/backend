@@ -1,4 +1,4 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.users;
 
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.GeneralException;
@@ -23,6 +23,7 @@ import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
 import com.umc.linkyou.repository.classification.PurposeRepository;
+import com.umc.linkyou.service.EmailService;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -160,10 +161,7 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = jwtTokenProvider.generateToken(authentication);
 
-        return UserConverter.toLoginResultDTO(
-                user.getId(),
-                accessToken
-        );
+        return UserConverter.toLoginResultDTO(user, accessToken);
     }
 
     @Override

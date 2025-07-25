@@ -1,4 +1,4 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.users;
 
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
