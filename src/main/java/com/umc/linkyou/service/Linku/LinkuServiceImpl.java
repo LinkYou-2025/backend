@@ -6,21 +6,28 @@ import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.awsS3.AwsS3Service;
 import com.umc.linkyou.converter.AwsS3Converter;
 import com.umc.linkyou.converter.LinkuConverter;
+import com.umc.linkyou.converter.LogConverter;
 import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Domain;
 import com.umc.linkyou.domain.classification.Emotion;
 import com.umc.linkyou.domain.classification.Situation;
 import com.umc.linkyou.domain.folder.Folder;
+import com.umc.linkyou.domain.log.EmotionLog;
+import com.umc.linkyou.domain.log.SituationLog;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
+import com.umc.linkyou.domain.mapping.SituationJob;
 import com.umc.linkyou.domain.mapping.UsersLinku;
 import com.umc.linkyou.googleImgParser.LinkToImageService;
 import com.umc.linkyou.repository.*;
 import com.umc.linkyou.repository.LinkuRepository.LinkuRepository;
+import com.umc.linkyou.repository.LogRepository.EmotionLogRepository;
+import com.umc.linkyou.repository.LogRepository.SituationLogRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.DomainRepository;
 import com.umc.linkyou.repository.classification.SituationRepository;
 import com.umc.linkyou.repository.mapping.LinkuFolderRepository;
+import com.umc.linkyou.repository.mapping.SituationJobRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
 import com.umc.linkyou.utils.EmotionSimilarityUtil;
 import com.umc.linkyou.web.dto.linku.LinkuInternalDTO;
@@ -58,6 +65,9 @@ public class LinkuServiceImpl implements LinkuService {
     private final LinkToImageService linkToImageService;
     private final RecentViewedLinkuRepository recentViewedLinkuRepository;
     private final SituationRepository situationRepository;
+    private final SituationLogRepository situationLogRepository;
+    private final EmotionLogRepository emotionLogRepository;
+    private final SituationJobRepository situationJobRepository;
 
     private static final Long DEFAULT_CATEGORY_ID = 16L;
     private static final Long DEFAULT_EMOTION_ID = 2L;
@@ -381,6 +391,23 @@ public class LinkuServiceImpl implements LinkuService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
         Situation selectedSituation = situationRepository.findById(situationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._SITUATION_NOT_FOUND));
+
+        //situationLog, emotionlog저장
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+
+        Long jobId = user.getJob().getId();
+
+        SituationJob situationJob = situationJobRepository.findBySituation_IdAndJob_Id(situationId, jobId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._SITUATION_NOT_FOUND));
+
+        Emotion emotion = emotionRepository.findById(emotionId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
+
+        situationLogRepository.save(LogConverter.toSituationLog(user, situationJob));
+        emotionLogRepository.save(LogConverter.toEmotionLog(user, emotion));
+
+
 
         List<Long> mappedCategories = situationCategoryService.getCategoryIdsBySituation(situationId);
         List<LinkuInternalDTO.ScoredLinkuDTO> scoredList = userLinkus.stream()
