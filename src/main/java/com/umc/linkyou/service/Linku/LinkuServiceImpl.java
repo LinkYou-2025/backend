@@ -1,6 +1,5 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.Linku;
 
-import com.mysema.commons.lang.Pair;
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.GeneralException;
@@ -24,7 +23,6 @@ import com.umc.linkyou.repository.classification.SituationRepository;
 import com.umc.linkyou.repository.mapping.LinkuFolderRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
 import com.umc.linkyou.utils.EmotionSimilarityUtil;
-import com.umc.linkyou.utils.SituationCategoryMapping;
 import com.umc.linkyou.web.dto.linku.LinkuInternalDTO;
 import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
@@ -65,6 +63,7 @@ public class LinkuServiceImpl implements LinkuService {
     private static final Long DEFAULT_EMOTION_ID = 2L;
     private static final Long DEFAULT_FOLDER_ID = 16L;
     private static final Long DEFAULT_DOMAIN_ID = 1L;
+    private final SituationCategoryService situationCategoryService;
 
     @Override
     @Transactional
@@ -383,8 +382,7 @@ public class LinkuServiceImpl implements LinkuService {
         Situation selectedSituation = situationRepository.findById(situationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._SITUATION_NOT_FOUND));
 
-        List<Long> mappedCategories = SituationCategoryMapping.getCategoriesForSituation(situationId);
-
+        List<Long> mappedCategories = situationCategoryService.getCategoryIdsBySituation(situationId);
         List<LinkuInternalDTO.ScoredLinkuDTO> scoredList = userLinkus.stream()
                 .map(linku -> {
                     int emotionScore = EmotionSimilarityUtil.getSimilarityScore(

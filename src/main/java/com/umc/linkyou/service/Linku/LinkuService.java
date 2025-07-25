@@ -1,4 +1,4 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.Linku;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;

@@ -4,7 +4,7 @@ import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.converter.LinkuConverter;
-import com.umc.linkyou.service.LinkuService;
+import com.umc.linkyou.service.Linku.LinkuService;
 import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
 import lombok.RequiredArgsConstructor;
