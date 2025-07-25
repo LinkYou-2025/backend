@@ -1,4 +1,4 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.Linku;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
@@ -10,6 +10,7 @@ import com.umc.linkyou.domain.*;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Domain;
 import com.umc.linkyou.domain.classification.Emotion;
+import com.umc.linkyou.domain.classification.Situation;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
@@ -18,10 +19,13 @@ import com.umc.linkyou.repository.*;
 import com.umc.linkyou.repository.LinkuRepository.LinkuRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.DomainRepository;
+import com.umc.linkyou.repository.classification.SituationRepository;
 import com.umc.linkyou.repository.mapping.LinkuFolderRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
-import com.umc.linkyou.web.dto.LinkuRequestDTO;
-import com.umc.linkyou.web.dto.LinkuResponseDTO;
+import com.umc.linkyou.utils.EmotionSimilarityUtil;
+import com.umc.linkyou.web.dto.linku.LinkuInternalDTO;
+import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
+import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +37,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.umc.linkyou.converter.LinkuConverter.toLinkuSimpleDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -52,15 +57,22 @@ public class LinkuServiceImpl implements LinkuService {
     private final AwsS3Service awsS3Service;
     private final LinkToImageService linkToImageService;
     private final RecentViewedLinkuRepository recentViewedLinkuRepository;
+    private final SituationRepository situationRepository;
+
+    private static final Long DEFAULT_CATEGORY_ID = 16L;
+    private static final Long DEFAULT_EMOTION_ID = 2L;
+    private static final Long DEFAULT_FOLDER_ID = 16L;
+    private static final Long DEFAULT_DOMAIN_ID = 1L;
+    private final SituationCategoryService situationCategoryService;
 
     @Override
     @Transactional
     public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto, MultipartFile image) {
-        Category category = categoryRepository.findById(16L)
+        Category category = categoryRepository.findById(DEFAULT_CATEGORY_ID)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
 
         Emotion emotion = (dto.getEmotionId() == null || dto.getEmotionId() <= 0)
-                ? emotionRepository.findById(2L)
+                ? emotionRepository.findById(DEFAULT_EMOTION_ID)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND))
                 : emotionRepository.findById(dto.getEmotionId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
@@ -69,12 +81,12 @@ public class LinkuServiceImpl implements LinkuService {
         //도메인 가져오기
         Domain domain = (domainTail != null)
                 ? domainRepository.findByDomainTail(domainTail)
-                .orElseGet(() -> domainRepository.findById(1L)
+                .orElseGet(() -> domainRepository.findById(DEFAULT_DOMAIN_ID)
                         .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND)))
-                : domainRepository.findById(1L)
+                : domainRepository.findById(DEFAULT_DOMAIN_ID)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
         //중분료 폴더 가져오기
-        Folder folder = folderRepository.findById(16L)
+        Folder folder = folderRepository.findById(DEFAULT_FOLDER_ID)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
         // 1. 제목 크롤링!
@@ -262,7 +274,7 @@ public class LinkuServiceImpl implements LinkuService {
 
             Domain domain = linku.getDomain();
 
-            LinkuResponseDTO.LinkuSimpleDTO dto = LinkuConverter.toLinkuSimpleDTO(linku, usersLinku, domain);
+            LinkuResponseDTO.LinkuSimpleDTO dto = toLinkuSimpleDTO(linku, usersLinku, domain);
             results.add(dto);
         }
         return results;
@@ -351,6 +363,70 @@ public class LinkuServiceImpl implements LinkuService {
         // 13. DTO 변환해 반환 (모든 정보 최신상태로 응답)
         return LinkuConverter.toLinkuResultDTO(userId, linku, usersLinku, linkuFolder, category, domain);
     } //링크 수정
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<List<LinkuResponseDTO.LinkuSimpleDTO>>> recommendLinku(
+            Long userId, Long situationId, Long emotionId, int page, int size) {
+
+        List<UsersLinku> userLinkus = usersLinkuRepository.findByUser_Id(userId);
+
+        if (userLinkus.isEmpty())
+            throw new GeneralException(ErrorStatus._RECOMMEND_LINKU_NEW_USER);
+
+        if (userLinkus.size() < 3)
+            throw new GeneralException(ErrorStatus._RECOMMEND_LINKU_NOT_ENOUGH_LINKS);
+
+        Emotion selectedEmotion = emotionRepository.findById(emotionId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
+        Situation selectedSituation = situationRepository.findById(situationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._SITUATION_NOT_FOUND));
+
+        List<Long> mappedCategories = situationCategoryService.getCategoryIdsBySituation(situationId);
+        List<LinkuInternalDTO.ScoredLinkuDTO> scoredList = userLinkus.stream()
+                .map(linku -> {
+                    int emotionScore = EmotionSimilarityUtil.getSimilarityScore(
+                            linku.getEmotion().getEmotionId(),
+                            selectedEmotion.getEmotionId());
+
+                    Long aiCategoryId = null;
+                    if (linku.getLinku() != null && linku.getLinku().getAiArticle() != null) {
+                        aiCategoryId = linku.getLinku().getAiArticle().getAiCategoryId();
+                    }
+
+                    int situationScore = aiCategoryId == null ? 1 : (mappedCategories.contains(aiCategoryId) ? 2 : 0);
+
+                    int totalScore = emotionScore + situationScore;
+
+                    return LinkuInternalDTO.ScoredLinkuDTO.builder()
+                            .userLinku(linku)
+                            .emotionScore(emotionScore)
+                            .situationScore(situationScore)
+                            .totalScore(totalScore)
+                            .build();
+                })
+                .sorted(Comparator.<LinkuInternalDTO.ScoredLinkuDTO>comparingInt(dto -> dto.getTotalScore() == 0 ? Integer.MIN_VALUE : dto.getTotalScore())
+                        .reversed()
+                        .thenComparing(dto -> dto.getUserLinku().getCreatedAt(), Comparator.reverseOrder()))
+                .collect(Collectors.toList());
+
+        // 페이징 처리
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, scoredList.size());
+
+        if (fromIndex > scoredList.size()) {
+            return ResponseEntity.ok(ApiResponse.onSuccess(Collections.emptyList()));
+        }
+
+        List<LinkuInternalDTO.ScoredLinkuDTO> pagedList = scoredList.subList(fromIndex, toIndex);
+
+        List<LinkuResponseDTO.LinkuSimpleDTO> result = pagedList.stream()
+                .map(scored -> LinkuConverter.toLinkuSimpleDTO(scored.getUserLinku()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+    }
+
 
 
 
