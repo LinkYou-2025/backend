@@ -67,6 +67,9 @@ public class Users extends BaseEntity {
 
     private LocalDateTime inactiveDate;
 
+    @Column(columnDefinition = "TEXT")
+    private String deleted_reason;
+
     public void encodePassword(String password) {
         this.password = password;
     }

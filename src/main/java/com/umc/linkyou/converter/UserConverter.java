@@ -34,11 +34,13 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.LoginResultDTO toLoginResultDTO(Long userId, String accessToken) {
+    public static UserResponseDTO.LoginResultDTO toLoginResultDTO(Users user, String accessToken) {
 
         return new UserResponseDTO.LoginResultDTO().builder()
-                .userId(userId)
+                .userId(user.getId())
                 .accessToken(accessToken)
+                .status(user.getStatus())
+                .inactiveDate(user.getInactiveDate())
                 .build();
     }
 
