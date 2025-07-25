@@ -102,13 +102,15 @@ public class UserController {
     }
 
     //회원 탈퇴
-    @DeleteMapping("/inactive")
-    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    @PostMapping("/inactive")
+    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails
+     ,@RequestBody UserRequestDTO.DeleteReasonDTO deleteReasonDTO
+    ) {
         if (userDetails == null) {
             return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
         }
         Long userId = userDetails.getUsers().getId();
-        Users user = userService.withdrawUser(userId);
+        Users user = userService.withdrawUser(userId,deleteReasonDTO);
         return ApiResponse.onSuccess(UserConverter.toWithDrawalResultDTO(user));
     }
 

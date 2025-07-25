@@ -368,11 +368,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Users withdrawUser(Long userId) {
+    public Users withdrawUser(Long userId,UserRequestDTO.DeleteReasonDTO deleteReasonDTO) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
         user.setStatus("INACTIVE");
         user.setInactiveDate(LocalDateTime.now());
+        user.setDeleted_reason(deleteReasonDTO.getReason());
         userRepository.save(user);
         return user;
     }
