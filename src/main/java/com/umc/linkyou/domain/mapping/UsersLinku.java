@@ -30,7 +30,7 @@ public class UsersLinku extends BaseEntity {
 
     // 연관관계: Users
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
     // 연관관계: Linku
