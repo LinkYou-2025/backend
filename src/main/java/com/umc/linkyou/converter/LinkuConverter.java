@@ -7,8 +7,8 @@ import com.umc.linkyou.domain.classification.Emotion;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
-import com.umc.linkyou.web.dto.LinkuRequestDTO;
-import com.umc.linkyou.web.dto.LinkuResponseDTO;
+import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
+import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
 
 public class LinkuConverter {
     // Converter: RequestParam으로 받은 데이터 -> LinkuCreateDTO 생성
@@ -112,5 +112,22 @@ public class LinkuConverter {
                 .linkuImageUrl(usersLinku != null ? usersLinku.getImageUrl() : null)
                 .build();
     } //리스트로 반환할때 쓰이는 것
+    public static LinkuResponseDTO.LinkuSimpleDTO toLinkuSimpleDTO(UsersLinku usersLinku) {
+        if (usersLinku == null) return null;
+
+        Linku linku = usersLinku.getLinku();
+        Domain domain = linku.getDomain();
+
+        return LinkuResponseDTO.LinkuSimpleDTO.builder()
+                .linkuId(linku.getLinkuId())
+                .categoryId(linku.getCategory() != null ? linku.getCategory().getCategoryId() : null)
+                .memo(usersLinku.getMemo())
+                .emotionId(usersLinku.getEmotion() != null ? usersLinku.getEmotion().getEmotionId() : null)
+                .title(linku.getTitle())
+                .domain(domain != null ? domain.getName() : null)
+                .domainImageUrl(domain != null ? domain.getImageUrl() : null)
+                .linkuImageUrl(usersLinku.getImageUrl())
+                .build();
+    }
 
 }

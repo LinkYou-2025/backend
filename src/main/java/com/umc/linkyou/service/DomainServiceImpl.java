@@ -48,6 +48,11 @@ public class DomainServiceImpl implements DomainService{
             domain.setDomainTail(dto.getDomainTail());
         }
         if (image != null && !image.isEmpty()) {
+            // 기존 이미지가 있을 경우 S3에서 삭제
+            if (domain.getImageUrl() != null) {
+                awsS3Service.deleteFileByUrl(domain.getImageUrl());  // URL에서 파일명 추출 후 삭제 실행
+            }
+            // 새 이미지 업로드 후 URL 세팅
             String imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
             domain.setImageUrl(imageUrl);
         }

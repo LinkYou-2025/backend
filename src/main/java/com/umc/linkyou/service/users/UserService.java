@@ -1,4 +1,4 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.users;
 
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
@@ -34,5 +34,5 @@ public interface UserService {
     // 임시 비밀번호 전송
     void sendTempPassword(String email);
 
-    Users withdrawUser(Long userId);
+    Users withdrawUser(Long userId, UserRequestDTO.DeleteReasonDTO deleteReasonDTO);
 }

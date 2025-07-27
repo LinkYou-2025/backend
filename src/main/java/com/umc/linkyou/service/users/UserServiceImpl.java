@@ -1,4 +1,4 @@
-package com.umc.linkyou.service;
+package com.umc.linkyou.service.users;
 
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.GeneralException;
@@ -6,6 +6,7 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.enums.Gender;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Interests;
@@ -22,6 +23,7 @@ import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
 import com.umc.linkyou.repository.classification.PurposeRepository;
+import com.umc.linkyou.service.EmailService;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -146,10 +148,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO.LoginResultDTO loginUser(UserRequestDTO.LoginRequestDTO request) {
         Users user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new UserHandler(ErrorStatus._USER_NOT_FOUND));
+                .orElseThrow(()-> new UserHandler(ErrorStatus._LOGIN_FAILED));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new UserHandler(ErrorStatus._INVALID_PASSWORD);
+            throw new UserHandler(ErrorStatus._LOGIN_FAILED);
         }
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -159,10 +161,7 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = jwtTokenProvider.generateToken(authentication);
 
-        return UserConverter.toLoginResultDTO(
-                user.getId(),
-                accessToken
-        );
+        return UserConverter.toLoginResultDTO(user, accessToken);
     }
 
     @Override
@@ -244,12 +243,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO.UserInfoDTO userInfo(Long userId){
         String nickName = userQueryRepository.findNicknameByUserId(userId);
+        String email = userQueryRepository.findEmailByUserId(userId);
+        Gender gender = userQueryRepository.findGenderByUserId(userId);
+        Job job = userQueryRepository.findJobByUserId(userId);
         Long linkCount = userQueryRepository.countLinksByUserId(userId);
         Long folderCount = userQueryRepository.countFoldersByUserId(userId);
         Long aiLinkCount = userQueryRepository.countAiLinksByUserId(userId);
 
         return UserConverter.toUserInfoDTO(
-                nickName, linkCount, folderCount, aiLinkCount
+                nickName, email, gender, job, linkCount, folderCount, aiLinkCount
         );
     }
 
@@ -364,11 +366,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Users withdrawUser(Long userId) {
+    public Users withdrawUser(Long userId,UserRequestDTO.DeleteReasonDTO deleteReasonDTO) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
         user.setStatus("INACTIVE");
         user.setInactiveDate(LocalDateTime.now());
+        user.setDeleted_reason(deleteReasonDTO.getReason());
         userRepository.save(user);
         return user;
     }

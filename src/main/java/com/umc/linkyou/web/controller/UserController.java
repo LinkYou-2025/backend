@@ -3,11 +3,10 @@ package com.umc.linkyou.web.controller;
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
-import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.Users;
-import com.umc.linkyou.service.UserService;
+import com.umc.linkyou.service.users.UserService;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
@@ -75,7 +74,7 @@ public class UserController {
     }
 
     // 마이페이지 수정
-    @PutMapping("/profile")
+    @PatchMapping("/profile")
     public ApiResponse<String> updateUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UserRequestDTO.UpdateProfileDTO updateDTO
@@ -102,13 +101,15 @@ public class UserController {
     }
 
     //회원 탈퇴
-    @DeleteMapping("/inactive")
-    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    @PostMapping("/inactive")
+    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails
+     ,@RequestBody UserRequestDTO.DeleteReasonDTO deleteReasonDTO
+    ) {
         if (userDetails == null) {
             return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
         }
         Long userId = userDetails.getUsers().getId();
-        Users user = userService.withdrawUser(userId);
+        Users user = userService.withdrawUser(userId,deleteReasonDTO);
         return ApiResponse.onSuccess(UserConverter.toWithDrawalResultDTO(user));
     }
 
