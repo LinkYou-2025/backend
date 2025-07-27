@@ -151,7 +151,7 @@ public class FolderServiceImpl implements FolderService {
     // 북마크 설정/해제
     @Transactional
     public FolderResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked) {
-        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId);
+        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId).orElseThrow(() -> new IllegalArgumentException("해당 유저의 북마크 정보가 존재하지 않습니다."));;
 
         usersFolder.setIsBookmarked(isBookmarked);
 
