@@ -3,6 +3,7 @@ package com.umc.linkyou.web.controller;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.service.folder.share.ShareFolderService;
 import com.umc.linkyou.web.dto.folder.*;
+import com.umc.linkyou.web.dto.folder.share.FolderPermissionRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderResponseDTO;
 import com.umc.linkyou.web.dto.folder.share.ViewerResponseDTO;
@@ -48,16 +49,17 @@ public class ShareFolderController {
         return ResponseEntity.ok(viewers);
     }
 
-    // 뷰어 권한 수정
+    // 뷰어, 라이터 권한 수정
     @PutMapping("/{folderId}/members/{userFolderId}")
-    @Operation(summary = "뷰어 권한 수정")
+    @Operation(summary = "폴더 권한 수정")
     public ResponseEntity<ShareFolderResponseDTO> updateViewerPermission(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long folderId,
-            @Valid @RequestBody FolderUpdateRequestDTO request
+            @PathVariable Long userFolderId,
+            @Valid @RequestBody FolderPermissionRequestDTO request
     ) {
         ShareFolderResponseDTO result = shareFolderService.updateViewerPermission(
-                userDetails.getUsers().getId(), folderId, request);
+                userDetails.getUsers().getId(), folderId, userFolderId, request);
         return ResponseEntity.ok(result);
     }
 }

@@ -12,7 +12,7 @@ public interface UsersFolderRepository extends JpaRepository<UsersFolder, Long>,
     @Query("select count(uf) > 0 from UsersFolder uf where uf.user.id = :userId and uf.folder.folderId = :folderId and uf.isOwner = true")
     boolean existsFolderOwner(@Param("userId") Long userId, @Param("folderId") Long folderId);
 
-    List<UsersFolder> findByFolderIdAndIsViewerTrue(Long folderId);
+    List<UsersFolder> findByFolderFolderIdAndIsViewerTrue(Long folderId);
 
     Optional<UsersFolder> findByUserIdAndFolderId(Long userId, Long folderId);
 }

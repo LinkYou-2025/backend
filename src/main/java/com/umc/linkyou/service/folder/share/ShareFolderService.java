@@ -1,6 +1,7 @@
 package com.umc.linkyou.service.folder.share;
 
 import com.umc.linkyou.web.dto.folder.FolderUpdateRequestDTO;
+import com.umc.linkyou.web.dto.folder.share.FolderPermissionRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderResponseDTO;
 import com.umc.linkyou.web.dto.folder.share.ViewerResponseDTO;
@@ -15,5 +16,5 @@ public interface ShareFolderService {
     List<ViewerResponseDTO> getViewers(Long userId, Long folderId);
 
     // 특정 뷰어 권한 수정
-    ShareFolderResponseDTO updateViewerPermission(Long userId, Long folderId, FolderUpdateRequestDTO request);
+    ShareFolderResponseDTO updateViewerPermission(Long userId, Long folderId, Long userFolderId, FolderPermissionRequestDTO request);
 }

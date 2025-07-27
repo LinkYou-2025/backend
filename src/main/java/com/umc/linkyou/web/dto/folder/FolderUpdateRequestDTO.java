@@ -7,6 +7,5 @@ import lombok.Setter;
 @Setter
 public class FolderUpdateRequestDTO {
     private String folderName;
-    private String permission;
 }
 
