@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -66,7 +67,8 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
                 .fetch();
     }
 
-    public UsersFolder findByUserIdAndFolderId(Long userId, Long folderId) {
+    @Override
+    public Optional<UsersFolder> findByUserIdAndFolderId(Long userId, Long folderId) {
         QUsersFolder usersFolder = QUsersFolder.usersFolder;
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -79,9 +81,11 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
             builder.and(usersFolder.folder.folderId.eq(folderId));
         }
 
-        return queryFactory
+        UsersFolder result = queryFactory
                 .selectFrom(usersFolder)
                 .where(builder)
                 .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 }
