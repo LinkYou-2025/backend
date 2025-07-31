@@ -19,7 +19,7 @@ import com.umc.linkyou.repository.UserQueryRepository;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
 import com.umc.linkyou.repository.classification.InterestRepository;
-import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
+import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
 import com.umc.linkyou.repository.classification.JobRepository;
 import com.umc.linkyou.repository.classification.PurposeRepository;

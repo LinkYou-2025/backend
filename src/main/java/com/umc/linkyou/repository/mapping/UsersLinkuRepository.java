@@ -2,7 +2,6 @@ package com.umc.linkyou.repository.mapping;
 
 import com.umc.linkyou.domain.Linku;
 import com.umc.linkyou.domain.Users;
-import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.UsersLinku;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

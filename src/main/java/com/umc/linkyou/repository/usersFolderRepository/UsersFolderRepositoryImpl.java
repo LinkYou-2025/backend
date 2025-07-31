@@ -1,8 +1,9 @@
-package com.umc.linkyou.repository.UsersFolderRepository;
+package com.umc.linkyou.repository.usersFolderRepository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.linkyou.domain.folder.Folder;
+import com.umc.linkyou.domain.folder.QFolder;
 import com.umc.linkyou.domain.mapping.folder.QUsersFolder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import lombok.RequiredArgsConstructor;
@@ -87,5 +88,24 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<Folder> findParentFolders(Long userId) {
+        QUsersFolder usersFolder = QUsersFolder.usersFolder;
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (userId != null) {
+            builder.and(usersFolder.user.id.eq(userId));
+        }
+
+        // 부모 폴더가 없는(=중분류) 폴더만
+        builder.and(usersFolder.folder.parentFolder.isNull());
+
+        return queryFactory
+                .select(usersFolder.folder)
+                .from(usersFolder)
+                .where(builder)
+                .fetch();
     }
 }
