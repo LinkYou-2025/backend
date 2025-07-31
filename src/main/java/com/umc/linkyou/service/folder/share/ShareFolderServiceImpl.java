@@ -4,7 +4,7 @@ import com.umc.linkyou.domain.enums.PermissionType;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
-import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
+import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.web.dto.folder.share.FolderPermissionRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderResponseDTO;

@@ -1,4 +1,4 @@
-package com.umc.linkyou.repository.mapping;
+package com.umc.linkyou.repository.mapping.linkuFolderRepository;
 
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface LinkuFolderRepository  extends JpaRepository<LinkuFolder, Long> {
+public interface LinkuFolderRepository  extends JpaRepository<LinkuFolder, Long>, LinkuFolderRepositoryCustom {
     Optional<Object> findById(long l);
 
     Optional<LinkuFolder>  findFirstByUsersLinku_UserLinkuIdOrderByLinkuFolderIdDesc(Long userLinkuId);

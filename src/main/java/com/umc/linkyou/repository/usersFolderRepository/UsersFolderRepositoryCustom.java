@@ -1,4 +1,4 @@
-package com.umc.linkyou.repository.UsersFolderRepository;
+package com.umc.linkyou.repository.usersFolderRepository;
 
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
@@ -17,4 +17,6 @@ public interface UsersFolderRepositoryCustom {
     );
 
     Optional<UsersFolder> findByUserIdAndFolderId(Long userId, Long folderId);
+
+    List<Folder> findParentFolders(Long userId);
 }

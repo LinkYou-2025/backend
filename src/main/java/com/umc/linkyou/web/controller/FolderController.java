@@ -3,6 +3,7 @@ package com.umc.linkyou.web.controller;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.service.folder.FolderService;
 import com.umc.linkyou.web.dto.folder.*;
+import com.umc.linkyou.web.dto.folder.linku.FolderLinkusResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,16 @@ public class FolderController {
         return ResponseEntity.ok(folderTree);
     }
 
+    // 중분류 폴더 목록 조회
+    @GetMapping("/parentFolders")
+    @Operation(summary = "중분류 폴더 조회")
+    public ResponseEntity<List<FolderListResponseDTO>> getParentFolderList(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        List<FolderListResponseDTO> folderList = folderService.getParentFolders(userDetails.getUsers().getId());
+        return ResponseEntity.ok(folderList);
+    }
+
     // (중분류) 하위 폴더 목록 조회
     @GetMapping("/{parentFolderId}/subfolders")
     @Operation(summary = "중분류 내부의 하위 폴더 조회")
@@ -84,6 +95,20 @@ public class FolderController {
         FolderResponseDTO response = folderService.updateBookmark(
                 userDetails.getUsers().getId(), folderId, request.getIsBookmarked()
         );
+        return ResponseEntity.ok(response);
+    }
+
+    // 폴더 내부 링크, 폴더 목록 조회
+    @GetMapping("/{folderId}/linkus")
+    @Operation(summary = "폴더 내부 링크, 폴더 목록 조회")
+    public ResponseEntity<FolderLinkusResponseDTO> getFolderLinkus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long folderId,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(required = false) String cursor
+    ) {
+        FolderLinkusResponseDTO response = folderService.getFolderLinkus(
+                userDetails.getUsers().getId(), folderId, limit, cursor);
         return ResponseEntity.ok(response);
     }
 }
