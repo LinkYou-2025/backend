@@ -13,9 +13,11 @@ import com.umc.linkyou.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/users")
@@ -45,7 +47,7 @@ public class UserController {
     }
 
     // 이메일 인증 코드 전송
-    @PostMapping("emails/code")
+    @PostMapping("/emails/code")
     public ApiResponse<String> sendCode(@RequestParam("email") @Valid String email) {
         userService.sendCode(email);
         return ApiResponse.of(SuccessStatus._VERIFICATION_CODE_SENT, "이메일로 인증 코드가 전송되었습니다.");
