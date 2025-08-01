@@ -2,9 +2,9 @@ name: linkyou
 
 on:
   push:
-    branches: [ "develop", "feat/#83-email-sendgrid" ]
+    branches: [ "develop", "feat/#85-temp-quick-search" ]
   pull_request:
-    branches: [ "develop", "feat/#83-email-sendgrid" ]
+    branches: [ "develop", "feat/#85-temp-quick-search" ]
   workflow_dispatch:
 
 permissions:
