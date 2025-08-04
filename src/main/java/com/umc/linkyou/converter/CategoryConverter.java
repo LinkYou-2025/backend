@@ -18,7 +18,12 @@ public class CategoryConverter {
     public UserCategoryColorResponseDTO toUserCategoryColorResponseDTO(UsersCategoryColor ucc) {
         return UserCategoryColorResponseDTO.builder()
                 .categoryId(ucc.getCategory().getCategoryId())
-                .fcolor(ucc.getFcolor().getColorCode())
+                .fcolorId(ucc.getFcolor().getFcolorId())
+                .colorName(ucc.getFcolor().getColorName())
+                .colorCode1(ucc.getFcolor().getColorCode1())
+                .colorCode2(ucc.getFcolor().getColorCode2())
+                .colorCode3(ucc.getFcolor().getColorCode3())
+                .colorCode4(ucc.getFcolor().getColorCode4())
                 .build();
     }
 }

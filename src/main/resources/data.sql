@@ -1,117 +1,244 @@
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#FF5353', '레드')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#FF6A2B', '오렌지')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#FF9C2B', '라이트오렌지')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#FFCE45', '옐로')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#77E61D', '라이트 그린')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#00C774', '그린')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#4B9857', '딥그린')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#36D1BE', '민트')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#34BBFF', '라이트 블루')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#4C7AF8', '블루')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#813CFF', '딥퍼플')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#BA5AFF', '퍼플')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#FF52DF', '핑크')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#FF459C', '딥핑크')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#906744', '브라운')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
-INSERT INTO fcolor (color_code, color_name)
-VALUES ('#000000', '블랙')
-ON DUPLICATE KEY UPDATE color_name = VALUES(color_name);
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (1, '레드', '#FF5353', '#FFA0A0', '#FFC2C2', '#FFEEEE')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (2, '오렌지', '#FF6A2B', '#FFA783', '#FFD3C1', '#FFEBE1')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (3, '라이트 오렌지', '#FF9C2B', '#FFB867', '#FFD4A3', '#FFEFDD')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (4, '옐로', '#FFCE45', '#FFE291', '#FFEEBE', '#FFFAEB')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (5, '라이트 그린', '#77E61D', '#B8F785', '#DAFBD0', '#EEFFE0')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (6, '그린', '#00C774', '#6BDFAE', '#B8F0D9', '#DAF7EB')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (7, '딥그린', '#4B9857', '#70AA79', '#9ECCA6', '#C7E8CD')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (8, '민트', '#36D1BE', '#98EDE2', '#B9F7F0', '#DDFFFB')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (9, '라이트 블루', '#34BFFF', '#97D8FF', '#D0EFFF', '#ECF8FF')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (10, '블루', '#4C7AF8', '#82A3FF', '#C2D2FF', '#E6ECFF')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (11, '딥퍼플', '#813CFF', '#A778FF', '#C5A6FF', '#EDE4FF')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (12, '퍼플', '#BA5AFF', '#D8A3FF', '#E7C6FF', '#F4E6FF')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (13, '핑크', '#FF52DF', '#F9FEDF', '#FFC7F5', '#FFE5FB')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (14, '딥핑크', '#FF459C', '#FFA2CC', '#FFC5E0', '#FFEF72')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (15, '브라운', '#906744', '#BE9A7B', '#E0B795', '#F4E6DB')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
+
+INSERT INTO fcolor
+(fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
+VALUES
+    (16, '블랙', '#000000', '#747474', '#AFAFAF', '#D4D4D4')
+ON DUPLICATE KEY UPDATE
+                     color_name  = VALUES(color_name),
+                     color_code1 = VALUES(color_code1),
+                     color_code2 = VALUES(color_code2),
+                     color_code3 = VALUES(color_code3),
+                     color_code4 = VALUES(color_code4);
 
 
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (1, '#000000', '어학')
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (1, 1, '어학')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (2, '#000000', '뉴스')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (2, 2, '뉴스')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (3, '#000000', '공부법')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (3, 3, '공부법')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (4, '#000000', 'IT·개발')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (4, 4, 'IT·개발')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (5, '#000000', '자기계발')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (5, 5, '자기계발')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (6, '#000000', '취업·이직')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (6, 6, '취업·이직')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (7, '#000000', '비즈니스 인사이트')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (7, 7, '비즈니스 인사이트')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (8, '#000000', '생산성·툴')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (8, 8, '생산성·툴')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (9, '#000000', '라이프스타일')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (9, 9, '라이프스타일')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (10, '#000000', '심리·자기이해')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (10, 10, '심리·자기이해')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (11, '#000000', '에세이·칼럼')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (11, 11, '에세이·칼럼')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (12, '#000000', '트렌드')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (12, 12, '트렌드')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (13, '#000000', '디자인·예술')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (13, 13, '디자인·예술')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (14, '#000000', '영상·뮤직')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (14, 14, '영상·뮤직')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (15, '#000000', '맛집·여행')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (15, 15, '맛집·여행')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
-INSERT INTO category (category_id, color_code, category_name)
-VALUES (16, '#000000', '기타')
+                        fcolor_id    = VALUES(fcolor_id);
+INSERT INTO category (category_id, fcolor_id, category_name)
+VALUES (16, 16, '기타')
 ON DUPLICATE KEY UPDATE category_name = VALUES(category_name),
-                        color_code    = VALUES(color_code);
+                        fcolor_id    = VALUES(fcolor_id);
 
 
 INSERT INTO emotion (emotion_id, name)

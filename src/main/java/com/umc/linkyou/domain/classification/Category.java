@@ -27,7 +27,7 @@ public class Category {
     private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "color_code", nullable = false)
+    @JoinColumn(name = "fcolor_id", nullable = false)
     private Fcolor fcolor;
 
     @OneToMany(mappedBy = "category")

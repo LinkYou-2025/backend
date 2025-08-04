@@ -7,17 +7,20 @@ import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
 import com.umc.linkyou.domain.enums.Gender;
+import com.umc.linkyou.domain.folder.Fcolor;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.classification.Interests;
 import com.umc.linkyou.domain.classification.Job;
 import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
+import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.EmailRepository;
 import com.umc.linkyou.repository.UserQueryRepository;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.categoryRepository.UsersCategoryColorRepository;
 import com.umc.linkyou.repository.classification.InterestRepository;
 import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.repository.classification.CategoryRepository;
@@ -74,6 +77,8 @@ public class UserServiceImpl implements UserService {
 
     private final UsersFolderRepository usersFolderRepository;
 
+    private final UsersCategoryColorRepository usersCategoryColorRepository;
+
 
     @Value("${auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
@@ -123,12 +128,21 @@ public class UserServiceImpl implements UserService {
 
         // 중분류 폴더 생성
         List<Category> categories = categoryRepository.findAll();
+        List<UsersCategoryColor> userColors = new ArrayList<>();
 
         for (Category category : categories) {
             Folder subFolder = folderRepository.save(Folder.builder()
                     .folderName(category.getCategoryName())
                     .category(category)
                     .parentFolder(null)
+                    .build());
+
+            // 기본 카테고리 색상으로 설정
+            Fcolor defaultColor = category.getFcolor();
+            userColors.add(UsersCategoryColor.builder()
+                    .user(newUser)
+                    .category(category)
+                    .fcolor(defaultColor)
                     .build());
 
             // UsersFolder 매핑
@@ -141,6 +155,8 @@ public class UserServiceImpl implements UserService {
                     .isBookmarked(false)
                     .build());
         }
+
+        usersCategoryColorRepository.saveAll(userColors);
 
         return newUser;
     }

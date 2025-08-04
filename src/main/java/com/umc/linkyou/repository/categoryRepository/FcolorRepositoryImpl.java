@@ -14,13 +14,13 @@ public class FcolorRepositoryImpl implements FcolorRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Fcolor searchColorCode(String colorCode) {
+    public Fcolor searchColorCode(Long fcolorId) {
         QFcolor fcolor = QFcolor.fcolor;
         BooleanBuilder builder = new BooleanBuilder();
 
-        // 색상 ID = colorCode
-        if (colorCode != null) {
-            builder.and(fcolor.colorCode.eq(colorCode));
+        // 색상 ID
+        if (fcolorId != null) {
+            builder.and(fcolor.fcolorId.eq(fcolorId));
         }
 
         return queryFactory

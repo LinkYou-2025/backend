@@ -39,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
             UpdateCategoryColorRequestDTO request) {
         UsersCategoryColor ucc = usersCategoryColorRepository.searchCategoryColor(userId, categoryId);
 
-        Fcolor fcolor = fcolorRepository.searchColorCode(request.getColorCode());
+        Fcolor fcolor = fcolorRepository.searchColorCode(request.getFcolorId());
         
         ucc.setFcolor(fcolor);
 
