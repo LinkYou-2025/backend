@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateCategoryColorRequestDTO {
-    private String colorCode;
+    private Long fcolorId;
 }

@@ -28,6 +28,6 @@ public class UsersCategoryColor {
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "color_code", nullable = false)
+    @JoinColumn(name = "fcolor_id", nullable = false)
     private Fcolor fcolor;
 }
