@@ -5,6 +5,7 @@ import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.awsS3.AwsS3Service;
 import com.umc.linkyou.converter.AwsS3Converter;
+import com.umc.linkyou.converter.FolderConverter;
 import com.umc.linkyou.converter.LinkuConverter;
 import com.umc.linkyou.converter.LogConverter;
 import com.umc.linkyou.domain.*;
@@ -17,7 +18,9 @@ import com.umc.linkyou.domain.Linku;
 import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.SituationJob;
 import com.umc.linkyou.domain.mapping.UsersLinku;
+import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.googleImgParser.LinkToImageService;
+import com.umc.linkyou.openApi.OpenAICategoryClassifier;
 import com.umc.linkyou.repository.*;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.linkuRepository.LinkuRepository;
@@ -29,6 +32,7 @@ import com.umc.linkyou.repository.classification.SituationRepository;
 import com.umc.linkyou.repository.mapping.linkuFolderRepository.LinkuFolderRepository;
 import com.umc.linkyou.repository.mapping.SituationJobRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
+import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.utils.EmotionSimilarityUtil;
 import com.umc.linkyou.web.dto.linku.LinkuInternalDTO;
 import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
@@ -68,18 +72,37 @@ public class LinkuServiceImpl implements LinkuService {
     private final SituationLogRepository situationLogRepository;
     private final EmotionLogRepository emotionLogRepository;
     private final SituationJobRepository situationJobRepository;
+    private final UsersFolderRepository usersFolderRepository;
 
     private static final Long DEFAULT_CATEGORY_ID = 16L;
     private static final Long DEFAULT_EMOTION_ID = 2L;
     private static final Long DEFAULT_FOLDER_ID = 16L;
     private static final Long DEFAULT_DOMAIN_ID = 1L;
     private final SituationCategoryService situationCategoryService;
+    private final OpenAICategoryClassifier openAiCategoryClassifier;
+    private final FolderConverter folderConverter;
 
     @Override
     @Transactional
     public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto, MultipartFile image) {
-        Category category = categoryRepository.findById(DEFAULT_CATEGORY_ID)
+        // 영상 링크 차단
+        if (isVideoLink(dto.getLinku())) {
+            throw new GeneralException(ErrorStatus._LINKU_VIDEO_NOT_ALLOWED);
+        }
+
+        // 유효하지 않은 링크 차단
+        if (!isValidUrl(dto.getLinku())) {
+            throw new GeneralException(ErrorStatus._LINKU_INVALID_URL);
+        }
+
+        // AI 카테고리 분류 시도
+        Long aiCategoryId = openAiCategoryClassifier.classifyCategoryByUrl(dto.getLinku(), categoryRepository.findAll());
+
+        Category category = Optional.ofNullable(aiCategoryId)
+                .flatMap(categoryRepository::findById)
+                .or(() -> categoryRepository.findById(DEFAULT_CATEGORY_ID))
                 .orElseThrow(() -> new GeneralException(ErrorStatus._CATEGORY_NOT_FOUND));
+
 
         Emotion emotion = (dto.getEmotionId() == null || dto.getEmotionId() <= 0)
                 ? emotionRepository.findById(DEFAULT_EMOTION_ID)
@@ -95,10 +118,6 @@ public class LinkuServiceImpl implements LinkuService {
                         .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND)))
                 : domainRepository.findById(DEFAULT_DOMAIN_ID)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
-        //중분료 폴더 가져오기
-        Folder folder = folderRepository.findById(DEFAULT_FOLDER_ID)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
-
         // 1. 제목 크롤링!
         String crawledTitle = linkToImageService.extractTitle(dto.getLinku());
         // 2. 링크 생성 (제목 반드시 포함)
@@ -122,7 +141,18 @@ public class LinkuServiceImpl implements LinkuService {
         UsersLinku usersLinku = LinkuConverter.toUsersLinku(user, linku, emotion, dto.getMemo(),imageUrl);
         usersLinkuRepository.save(usersLinku);
 
-        LinkuFolder linkuFolder = LinkuConverter.toLinkuFolder(folder, usersLinku);
+        // 유저가 동일한 폴더명을 가진 폴더를 이미 가지고 있는지 조회
+        Folder newfolder = usersFolderRepository.findFolderByUserIdAndFolderName(userId, category.getCategoryName())
+                .orElseGet(() -> {
+                    Folder newFolder = folderConverter.toFolder(category);
+                    folderRepository.save(newFolder);
+
+                    UsersFolder newUsersFolder = folderConverter.toUsersFolder(user, newFolder);
+                    usersFolderRepository.save(newUsersFolder);
+
+                    return newFolder;
+                });
+        LinkuFolder linkuFolder = LinkuConverter.toLinkuFolder(newfolder, usersLinku);
         linkuFolderRepository.save(linkuFolder);
 
         return LinkuConverter.toLinkuResultDTO(
