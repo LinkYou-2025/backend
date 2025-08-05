@@ -1,11 +1,14 @@
-language: "ko-KR"
-
+# .coderabbit.yaml
+language: "ko-KR" # 한국말로 설정
+early_access: false
 reviews:
-  profile: "chill"
-  request_changes_workflow: false
+  profile: "chill" # 리뷰 너무 빡세게는 안한다는 뜻
   high_level_summary: true
-  poem: false
+  poem: true 
   review_status: true
+  collapse_walkthrough: false
   auto_review:
     enabled: true
     drafts: false
+chat:
+  auto_reply: true
