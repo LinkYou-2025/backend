@@ -31,7 +31,12 @@ public class ShareFolderServiceImpl implements ShareFolderService {
                         .folder(folderRepository.getById(folderId))
                         .build()
                 );
+
         usersFolder.setIsViewer(true);
+        usersFolder.setIsWriter(true);
+        usersFolder.setIsOwner(false);
+        usersFolder.setIsBookmarked(false);
+
         usersFolderRepository.save(usersFolder);
 
         return ShareFolderResponseDTO.builder()
