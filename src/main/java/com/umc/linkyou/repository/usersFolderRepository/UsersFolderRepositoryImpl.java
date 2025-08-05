@@ -108,4 +108,26 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
                 .where(builder)
                 .fetch();
     }
+
+    @Override
+    public Optional<Folder> findFolderByUserIdAndFolderName(Long userId, String folderName) {
+        QUsersFolder usersFolder = QUsersFolder.usersFolder;
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (userId != null) {
+            builder.and(usersFolder.user.id.eq(userId));
+        }
+
+        if (folderName != null && !folderName.isEmpty()) {
+            builder.and(usersFolder.folder.folderName.eq(folderName));
+        }
+
+        Folder folder = queryFactory
+                .select(usersFolder.folder)
+                .from(usersFolder)
+                .where(builder)
+                .fetchOne();
+
+        return Optional.ofNullable(folder);
+    }
 }

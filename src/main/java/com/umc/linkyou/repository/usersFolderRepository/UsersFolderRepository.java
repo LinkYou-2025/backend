@@ -1,5 +1,6 @@
 package com.umc.linkyou.repository.usersFolderRepository;
 
+import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
