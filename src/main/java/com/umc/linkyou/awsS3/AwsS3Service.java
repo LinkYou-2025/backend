@@ -53,6 +53,28 @@ public class AwsS3Service {
         return getFileUrl(fileName);
     }
 
+    public String uploadFile(MultipartFile multipartFile, String folder) {
+        if (multipartFile == null || multipartFile.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다.");
+        }
+
+        String fileName = folder + "/" + createFileName(multipartFile.getOriginalFilename());
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(multipartFile.getSize());
+        metadata.setContentType(multipartFile.getContentType());
+
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 업로드 실패");
+        }
+
+        return getFileUrl(fileName);
+    }
+
+
+
     /**
      * 파일명 난수화 + 확장자 유지
      */
@@ -113,4 +135,6 @@ public class AwsS3Service {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "URL에서 파일명을 추출할 수 없습니다.");
         }
     }
+
+
 }

@@ -24,8 +24,9 @@ public class DomainServiceImpl implements DomainService{
     public DomainDTO.DomainReponseDTO createDomain(Long userId, DomainDTO.DomainRequestDTO dto, MultipartFile image) {
         String imageUrl = null;
         if (image != null && !image.isEmpty()) {
-            imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
+            imageUrl = awsS3Service.uploadFile(image, "domain");
         }
+
         Domain domain = Domain.builder()
                 .name(dto.getName())
                 .domainTail(dto.getDomainTail())
@@ -53,7 +54,7 @@ public class DomainServiceImpl implements DomainService{
                 awsS3Service.deleteFileByUrl(domain.getImageUrl());  // URL에서 파일명 추출 후 삭제 실행
             }
             // 새 이미지 업로드 후 URL 세팅
-            String imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
+            String imageUrl = awsS3Service.uploadFile(image, "domain");
             domain.setImageUrl(imageUrl);
         }
 
