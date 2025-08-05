@@ -85,6 +85,16 @@ public class LinkuServiceImpl implements LinkuService {
     @Override
     @Transactional
     public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto, MultipartFile image) {
+        // 영상 링크 차단
+        if (isVideoLink(dto.getLinku())) {
+            throw new GeneralException(ErrorStatus._LINKU_VIDEO_NOT_ALLOWED);
+        }
+
+        // 유효하지 않은 링크 차단
+        if (!isValidUrl(dto.getLinku())) {
+            throw new GeneralException(ErrorStatus._LINKU_INVALID_URL);
+        }
+
         // AI 카테고리 분류 시도
         Long aiCategoryId = openAiCategoryClassifier.classifyCategoryByUrl(dto.getLinku(), categoryRepository.findAll());
 
