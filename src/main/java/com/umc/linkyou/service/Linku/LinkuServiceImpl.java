@@ -141,15 +141,18 @@ public class LinkuServiceImpl implements LinkuService {
         UsersLinku usersLinku = LinkuConverter.toUsersLinku(user, linku, emotion, dto.getMemo(),imageUrl);
         usersLinkuRepository.save(usersLinku);
 
-        // 카테고리 이름을 폴더명으로 사용하여 폴더 생성
-        Folder newFolder = folderConverter.toFolder(category);
-        folderRepository.save(newFolder);
+        // 유저가 동일한 폴더명을 가진 폴더를 이미 가지고 있는지 조회
+        Folder newfolder = usersFolderRepository.findFolderByUserIdAndFolderName(userId, category.getCategoryName())
+                .orElseGet(() -> {
+                    Folder newFolder = folderConverter.toFolder(category);
+                    folderRepository.save(newFolder);
 
-        // 유저-폴더 매핑 생성
-        UsersFolder usersFolder = folderConverter.toUsersFolder(user, newFolder);
-        usersFolderRepository.save(usersFolder);
+                    UsersFolder newUsersFolder = folderConverter.toUsersFolder(user, newFolder);
+                    usersFolderRepository.save(newUsersFolder);
 
-        LinkuFolder linkuFolder = LinkuConverter.toLinkuFolder(newFolder, usersLinku);
+                    return newFolder;
+                });
+        LinkuFolder linkuFolder = LinkuConverter.toLinkuFolder(newfolder, usersLinku);
         linkuFolderRepository.save(linkuFolder);
 
         return LinkuConverter.toLinkuResultDTO(
