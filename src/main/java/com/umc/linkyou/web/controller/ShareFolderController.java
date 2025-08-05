@@ -61,4 +61,16 @@ public class ShareFolderController {
                 userDetails.getUsers().getId(), folderId, userFolderId, request);
         return ResponseEntity.ok(result);
     }
+
+    // 폴더 비공개 전환
+    @PostMapping("/{folderId}/unshare")
+    @Operation(summary = "폴더 비공개 전환")
+    public ResponseEntity<ShareFolderResponseDTO> unshareFolder(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long folderId
+    ) {
+        // 모든 유저의 (폴더 주인 제외) 뷰어, writer 권한 false
+        ShareFolderResponseDTO result = shareFolderService.unshare(userDetails.getUsers().getId(), folderId);
+        return ResponseEntity.ok(result);
+    }
 }

@@ -10,8 +10,10 @@ import com.umc.linkyou.web.dto.folder.share.ShareFolderRequestDTO;
 import com.umc.linkyou.web.dto.folder.share.ShareFolderResponseDTO;
 import com.umc.linkyou.web.dto.folder.share.ViewerResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -91,6 +93,35 @@ public class ShareFolderServiceImpl implements ShareFolderService {
                 .userId(usersFolder.getUser().getId())
                 .permission(permission.name())
                 .sharedAt(usersFolder.getUpdatedAt().toString())
+                .build();
+    }
+
+    // 폴더 비공개 전환
+    public ShareFolderResponseDTO unshare(Long ownerId, Long folderId) {
+        // 폴더 주인인지 확인
+        boolean isOwner = usersFolderRepository
+                .existsFolderOwner(ownerId, folderId);
+        if (!isOwner) {
+            throw new AccessDeniedException("폴더 주인만 비공개로 전환 가능");
+        }
+
+        // 뷰어들 조회
+        List<UsersFolder> mappings =
+                usersFolderRepository.searchViewers(folderId);
+
+        // 권한 박탈
+        mappings.forEach(uf -> {
+            uf.setIsViewer(false);
+            uf.setIsWriter(false);
+        });
+
+        usersFolderRepository.saveAll(mappings);
+
+        return ShareFolderResponseDTO.builder()
+                .folderId(folderId)
+                .userId(ownerId)
+                .permission("PRIVATE")
+                .sharedAt(LocalDateTime.now().toString())
                 .build();
     }
 }

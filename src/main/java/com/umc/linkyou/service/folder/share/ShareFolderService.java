@@ -17,4 +17,7 @@ public interface ShareFolderService {
 
     // 특정 뷰어 권한 수정
     ShareFolderResponseDTO updateViewerPermission(Long userId, Long folderId, Long userFolderId, FolderPermissionRequestDTO request);
+
+    // 폴더 비공개 전환
+    ShareFolderResponseDTO unshare(Long ownerId, Long folderId);
 }
