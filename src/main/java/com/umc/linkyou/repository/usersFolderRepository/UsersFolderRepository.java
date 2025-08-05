@@ -1,5 +1,6 @@
 package com.umc.linkyou.repository.usersFolderRepository;
 
+import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,14 @@ public interface UsersFolderRepository extends JpaRepository<UsersFolder, Long>,
     List<UsersFolder> findByFolderFolderIdAndIsViewerTrue(Long folderId);
 
     Optional<UsersFolder> findByUserIdAndFolderId(Long userId, Long folderId);
+
+    // share 폴더 찾기
+    @Query("""
+                select uf.folder
+                from UsersFolder uf
+                where uf.user.id = :userId
+                  and uf.isOwner = false
+                  and uf.isViewer = true
+            """)
+    List<Folder> findSharedFolders(@Param("userId") Long userId);
 }
