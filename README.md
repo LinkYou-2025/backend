@@ -11,7 +11,7 @@ LinkU 백엔드 레포지토리 입니다.
 
 |장서원|김하진|나현주|조효림|
 |:---:|:---:|:---:|:---:|
-|<img src="https://github.com/oculo0204.png" width="300" height="230">|<img src="https://github.com/Hajin99.png" width="300" height="230">|<img src="https://github.com/HyeonJooooo.png" width="300" height="230">|<img src="https://github.com/hyorim-jo.png" width="300" height="230">|
+|<img src="https://github.com/user-attachments/assets/65b56c2f-15f4-4dcd-9871-ac4656773441" width="300" height="230">|<img src="https://github.com/Hajin99.png" width="300" height="230">|<img src="https://github.com/HyeonJooooo.png" width="300" height="230">|<img src="https://github.com/hyorim-jo.png" width="300" height="230">|
 |[@oculo0204](https://github.com/oculo0204)|[@Hajin99](https://github.com/Hajin99)|[@HyeonJooooo](https://github.com/HyeonJooooo)|[@hyorim-jo](https://github.com/hyorim-jo)|
 
 <br/>
