@@ -261,35 +261,6 @@ VALUES (6, '분노')
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 
-
-INSERT INTO domain (domain_id, name, domain_tail, image_url) VALUES
-(1, 'invalid', 'invalid', NULL),
-(2, 'blog.naver', 'blog.naver.com', NULL),
-(3, 'cafe.naver', 'cafe.naver.com', NULL),
-(4, 'kin.naver', 'kin.naver.com', NULL),
-(5, 'shopping.naver', 'shopping.naver.com', NULL),
-(6, 'github', 'github.com', NULL),
-(7, 'linkedin', 'linkedin.com', NULL),
-(8, 'tistory', 'tistory.com', NULL),
-(9, 'google', 'google.com', NULL),
-(10, 'nytimes', 'nytimes.com', NULL),
-(11, 'brunch', 'brunch.co.kr', NULL),
-(12, 'velog', 'velog.io', NULL),
-(13, 'daum', 'daum.net', NULL),
-(14, 'jobkorea', 'jobkorea.co.kr', NULL),
-(15, 'wanted', 'wanted.co.kr', NULL),
-(16, 'musinsa', 'musinsa.com', NULL),
-(17, '11st', '11st.co.kr', NULL),
-(18, 'instagram', 'instagram.com', NULL),
-(19, 'twitter', 'twitter.com', NULL),
-(20, 'facebook', 'facebook.com', NULL),
-(21, 'naver', 'naver.com', NULL)
-    ON DUPLICATE KEY UPDATE
-                         name = VALUES(name),
-                         domain_tail = VALUES(domain_tail),
-                         image_url = VALUES(image_url);
-
-
 -- 즐거움 (emotion_id = 1)
 INSERT INTO curation_ment (emotion_id, header_text, footer_text) VALUES
     (1, '(닉네임)님, 요즘 기분 좋은 일이 많았죠? 그 흐름을 더 이어갈 콘텐츠들이에요.', '지금의 긍정적인 에너지를 놓치지 말고, 조금 더 넓혀봐요!')
