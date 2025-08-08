@@ -1,5 +1,7 @@
 package com.umc.linkyou.service.folder.share;
 
+import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.domain.enums.PermissionType;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.FolderRepository;
@@ -67,11 +69,11 @@ public class ShareFolderServiceImpl implements ShareFolderService {
 
     // 유저의 폴더 권한 수정
     public ShareFolderResponseDTO updateViewerPermission(Long userId, Long folderId, Long userFolderId, FolderPermissionRequestDTO request) {
-        UsersFolder usersFolder = usersFolderRepository.findById(userFolderId).orElseThrow(() -> new IllegalArgumentException("해당 유저의 폴더 권한 정보가 존재하지 않습니다."));
+        UsersFolder usersFolder = usersFolderRepository.findById(userFolderId).orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_PERMISSION_NOT_FOUND));
 
         // 오너일 경우 권한 변경 불가
         if (Boolean.TRUE.equals(usersFolder.getIsOwner())) {
-            throw new IllegalStateException("폴더 주인 권한 수정 불가");
+            throw new GeneralException(ErrorStatus.FOLDER_OWNER_UPDATE_NOT_ALLOWED);
         }
 
         PermissionType permission = request.getPermission();

@@ -1,5 +1,8 @@
 package com.umc.linkyou.web.controller;
 
+import com.umc.linkyou.apiPayload.ApiResponse;
+import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
+import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.service.folder.shared.SharedFolderService;
 import com.umc.linkyou.web.dto.folder.FolderListResponseDTO;
@@ -21,12 +24,12 @@ public class SharedFolderController {
     // 공유 받은 폴더 목록 조회
     @GetMapping
     @Operation(summary = "공유 받은 폴더 목록 조회")
-    public ResponseEntity<List<FolderListResponseDTO>> getSharedFolders(
+    public ApiResponse<List<FolderListResponseDTO>> getSharedFolders(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // 유저 폴더 테이블에서 isOwner가 false고 isViewer가 true인 폴더들 조회
         List<FolderListResponseDTO> folderList = sharedFolderService.getSharedFolders(userDetails.getUsers().getId());
-        return ResponseEntity.ok(folderList);
+        return ApiResponse.of(SuccessStatus._FOLDER_SHARED_OK, folderList);
     }
 
     // 공유 받은 폴더 삭제
