@@ -32,6 +32,7 @@ public class CurationServiceImpl implements CurationService {
     private final UserRepository userRepository;
     private final CurationRepository curationRepository;
     private final CurationTopLogService curationTopLogService;
+    private final ThumbnailUrlProvider thumbnailUrlProvider;
 
     /**
      * 유저의 큐레이션을 생성하고, 감정/상황 로그 기반 top3 태그를 계산해 저장한다.
@@ -44,7 +45,7 @@ public class CurationServiceImpl implements CurationService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 1-2. 썸네일 URL 생성
-        String thumbnailUrl = ThumbnailUrlProvider.getUrlForMonth(request.getMonth());
+        String thumbnailUrl = thumbnailUrlProvider.getUrlForMonth("curation", request.getMonth());
 
         // 2. 큐레이션 객체 생성
         Curation curation = Curation.builder()
@@ -69,7 +70,7 @@ public class CurationServiceImpl implements CurationService {
     public void generateMonthlyCurationForAllUsers() {
         YearMonth prevMonth = YearMonth.now().minusMonths(1);
         String month = prevMonth.toString();
-        String thumbnailUrl = ThumbnailUrlProvider.getUrlForMonth(month);
+        String thumbnailUrl = thumbnailUrlProvider.getUrlForMonth("curation", month);
 
         List<Users> users = userRepository.findAll();
         for (Users user : users) {
