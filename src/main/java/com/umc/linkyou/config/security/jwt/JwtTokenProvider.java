@@ -45,7 +45,7 @@ public class JwtTokenProvider {
     private final UserRefreshTokenRepository userRefreshTokenRepository;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
+        return Keys.hmacShaKeyFor(jwtProperties.getKeys().getAccess().getBytes());
     }
 
     public String generateToken(Authentication authentication) {
@@ -62,10 +62,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
+            validateAndParseAccess(token);
             return true;
         } catch (ExpiredJwtException e) {
             // AccessToken이 만료된 경우 예외를 던져서 필터에서 처리하게 함
@@ -76,14 +73,9 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
+        Claims claims = validateAndParseAccess(token).getBody();
         String email = claims.getSubject();
-        String role = claims.get("role", String.class);
+        // String role = claims.get("role", String.class);
 
         // Users users = ... // 이메일로 Users 엔티티 조회
         Users users = userRepository.findByEmail(email)
@@ -110,36 +102,32 @@ public class JwtTokenProvider {
     }
 
     // 리프레시 토큰 발급
-    public String createRefreshToken() {
+    public String createRefreshToken(String subjectEmail) {
         return Jwts.builder()
-                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes()), SignatureAlgorithm.HS256)
+                .setSubject(subjectEmail)
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.getKeys().getRefresh().getBytes()), SignatureAlgorithm.HS256)
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getRefresh()))
                 .compact();
     }
 
-    // 액세스 토큰 재발급
-    @Transactional
-    public String recreateAccessToken(String oldAccessToken) throws JsonProcessingException {
-        String subject = decodeJwtPayloadSubject(oldAccessToken);
-
-        return createAccessToken(subject);
-    }
-
     // 리프레시 토큰 유효성 검증
     @Transactional(readOnly = true)
-    public void validateRefreshToken(String refreshToken, String oldAccessToken) throws JsonProcessingException {
-        log.info("10");
-        validateAndParseToken(refreshToken);
+    public void validateRefreshToken(String refreshToken) {
+        String provided = normalizeStrict(refreshToken);
+        Claims claims = validateAndParseRefresh(provided).getBody();
 
-        String email = decodeJwtPayloadSubject(oldAccessToken); // subject = email
+        String email = claims.getSubject();
         Long userId = userRepository.findByEmail(email)
                 .map(Users::getId)
-                .orElseThrow(() -> new IllegalStateException("User not found for email: " + email));
+                .orElseThrow(() -> new UserHandler(ErrorStatus._USER_NOT_FOUND));
         userRefreshTokenRepository.findByUserId(userId)
-                .filter(refresh -> refresh.validateRefreshToken(refreshToken))
-                .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh token expired."));
+                .filter(refresh -> {
+                    String stored = normalizeStrict(refresh.getRefreshToken());
+                    return java.util.Objects.equals(stored, provided);
+                })
+                .orElseThrow(() -> new UserHandler(ErrorStatus._INVALID_TOKEN));
     }
 
     // 액세스 토큰 생성 (subject 기반)
@@ -152,12 +140,35 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 토큰 파싱 및 검증
-    private Jws<Claims> validateAndParseToken(String token) {
+    private Jws<Claims> parse(String token, Key key) {
+        String cleanToken = normalizeStrict(token);
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token);
+                .parseClaimsJws(cleanToken);
+    }
+
+    private Key getAccessKey()  { return Keys.hmacShaKeyFor(jwtProperties.getKeys().getAccess().getBytes()); }
+    private Key getRefreshKey() { return Keys.hmacShaKeyFor(jwtProperties.getKeys().getRefresh().getBytes()); }
+
+    // 액세스 토큰 파싱/검증
+    private Jws<Claims> validateAndParseAccess(String token) {
+        String cleanToken = normalizeStrict(token);
+        return parse(cleanToken, getAccessKey());
+    }
+
+    // 리프레시 토큰 파싱/검증
+    public Jws<Claims> validateAndParseRefresh(String token) {
+        String cleanToken = normalizeStrict(token);
+        return parse(cleanToken, getRefreshKey());
+    }
+
+    public String normalizeStrict(String token) {
+        if (token == null) return null;
+        String t = token.trim();
+        if (t.startsWith("Bearer ")) t = t.substring(7);
+        // 공백/개행/탭/제어문자 제거
+        return t.replaceAll("[\\r\\n\\t]", "");
     }
 
     // 액세스 토큰에서 subject 추출

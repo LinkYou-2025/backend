@@ -40,16 +40,4 @@ public class SwaggerConfig {
                 .addSecurityItem(securityRequirement)
                 .components(components);
     }
-
-    // 리프레시 토큰을 전역적으로 헤더에 추가
-    @Bean
-    public OperationCustomizer globalHeader() {
-        return (operation, handlerMethod) -> {
-            operation.addParametersItem(new Parameter()
-                    .in(ParameterIn.HEADER.toString())
-                    .schema(new StringSchema().name("Refresh-Token"))
-                    .name("Refresh-Token"));
-            return operation;
-        };
-    }
 }
