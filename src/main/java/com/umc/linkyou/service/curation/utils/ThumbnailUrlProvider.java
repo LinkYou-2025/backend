@@ -1,20 +1,26 @@
 package com.umc.linkyou.service.curation.utils;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import java.time.YearMonth;
 
+@Component
 public class ThumbnailUrlProvider {
 
-    private static final String BASE_URL = "https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/curation/";
+    private final String baseUrl;
     private static final String EXTENSION = ".png";
 
-    public static String getUrlForMonth(String month) {
-        // 예: "2025-04" → "04"
-        String monthPart = month.split("-")[1];
-        return BASE_URL + monthPart + EXTENSION;
+    public ThumbnailUrlProvider(@Value("${cloud.aws.s3.base-url}") String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
-    public static String getUrlForMonth(YearMonth yearMonth) {
+    public String getUrlForMonth(String folder, String month) {
+        String monthPart = month.split("-")[1];
+        return String.format("%s/%s/%s%s", baseUrl, folder, monthPart, EXTENSION);
+    }
+
+    public String getUrlForMonth(String folder, YearMonth yearMonth) {
         String monthPart = String.format("%02d", yearMonth.getMonthValue());
-        return BASE_URL + monthPart + EXTENSION;
+        return String.format("%s/%s/%s%s", baseUrl, folder, monthPart, EXTENSION);
     }
 }
