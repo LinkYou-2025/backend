@@ -41,4 +41,32 @@ public class CurationTopLogCustomRepositoryImpl implements CurationTopLogCustomR
                 .fetchOne(); // 하나만 조회
     }
 
+    @Override
+    public List<CurationTopLog> findTopTagsByUserId(Long userId, int limit) {
+        QCurationTopLog log = QCurationTopLog.curationTopLog;
+
+        return queryFactory
+                .selectFrom(log)
+                .where(log.curation.user.id.eq(userId))
+                .orderBy(log.count.desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public List<CurationTopLog> findTop3EmotionLogsByCurationId(Long curationId) {
+        QCurationTopLog log = QCurationTopLog.curationTopLog;
+
+        return queryFactory
+                .selectFrom(log)
+                .where(
+                        log.curation.curationId.eq(curationId),
+                        log.type.eq(com.umc.linkyou.domain.enums.CurationTopLogType.EMOTION)
+                )
+                .orderBy(log.count.desc())
+                .limit(3)
+                .fetch();
+    }
+
+
 }

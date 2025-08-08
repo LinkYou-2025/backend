@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface CurationTopLogCustomRepository {
     List<CurationTopLog> findTop3ByCurationId(Long curationId);
     CurationTopLog findTopEmotionLogByCurationId(Long curationId);
+
+    List<CurationTopLog> findTopTagsByUserId(Long userId, int limit);
+    List<CurationTopLog> findTop3EmotionLogsByCurationId(Long curationId);
 }
