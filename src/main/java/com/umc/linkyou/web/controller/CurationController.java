@@ -1,15 +1,21 @@
 package com.umc.linkyou.web.controller;
 
+import com.umc.linkyou.converter.LinkuConverter;
 import com.umc.linkyou.domain.Curation;
+import com.umc.linkyou.domain.mapping.UsersLinku;
 import com.umc.linkyou.service.curation.CurationLikeService;
 import com.umc.linkyou.service.curation.CurationService;
 import com.umc.linkyou.service.curation.CurationTopLogService;
+import com.umc.linkyou.service.curation.linku.CurationRecommendBuilderService;
+import com.umc.linkyou.service.curation.linku.ExternalRecommendService;
+import com.umc.linkyou.service.curation.linku.InternalLinkCandidateService;
 import com.umc.linkyou.web.dto.curation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,31 +25,33 @@ public class CurationController {
     private final CurationTopLogService curationTopLogService;
     private final CurationService curationService;
     private final CurationLikeService curationLikeService;
+    private final CurationRecommendBuilderService curationRecommendBuilderService;
+    private final InternalLinkCandidateService internalLinkCandidateService;
 
-    @GetMapping("/top-log/{curationId}")
-    public List<String> getTopTags(@PathVariable Long curationId) {
-        return curationTopLogService.getTopTagNamesByCuration(curationId);
-    }
+//    @GetMapping("/top-log/{curationId}")
+//    public List<String> getTopTags(@PathVariable Long curationId) {
+//        return curationTopLogService.getTopTagNamesByCuration(curationId);
+//    }
 
     /**
      * 큐레이션 생성 요청 (Top3 감정/상황 자동 분석 포함)
      */
-    @PostMapping("/generate/{userId}")
-    public ResponseEntity<CreateCurationResponse> createCuration(
-            @PathVariable Long userId,
-            @RequestBody CreateCurationRequest request) {
-
-        Curation created = curationService.createCuration(userId, request);
-
-        CreateCurationResponse response = CreateCurationResponse.builder()
-                .curationId(created.getCurationId())
-                .month(created.getMonth())
-                .thumbnailUrl(created.getThumbnailUrl())
-                .createdAt(created.getCreatedAt())
-                .build();
-
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/generate/{userId}")
+//    public ResponseEntity<CreateCurationResponse> createCuration(
+//            @PathVariable Long userId,
+//            @RequestBody CreateCurationRequest request) {
+//
+//        Curation created = curationService.createCuration(userId, request);
+//
+//        CreateCurationResponse response = CreateCurationResponse.builder()
+//                .curationId(created.getCurationId())
+//                .month(created.getMonth())
+//                .thumbnailUrl(created.getThumbnailUrl())
+//                .createdAt(created.getCreatedAt())
+//                .build();
+//
+//        return ResponseEntity.ok(response);
+//    }
     // 자동생성 테스트
     @GetMapping("/batch/manual")
     public ResponseEntity<Void> triggerBatch() {
@@ -104,4 +112,31 @@ public class CurationController {
         return ResponseEntity.ok(curationLikeService.getRecentLikedCurations(userId));
     }
 
+    /**
+     * 큐레이션 링크 추천
+     */
+    @GetMapping("/recommend-links")
+    public ResponseEntity<List<RecommendedLinkResponse>> getRecommendedLinks(
+            @RequestParam Long userId,
+            @RequestParam Long curationId) {
+
+        List<RecommendedLinkResponse> recommendations =
+                curationRecommendBuilderService.buildRecommendedLinks(userId, curationId);
+
+        return ResponseEntity.ok(recommendations);
+    }
+
+
+    /**
+     * 내부 링크 유사도 상위 2개
+     */
+    @GetMapping("/recommend-links/internal/top2")
+    public ResponseEntity<List<RecommendedLinkResponse>> getInternalSimilarLinks(
+            @RequestParam Long userId,
+            @RequestParam Long curationId
+    ) {
+        List<RecommendedLinkResponse> result =
+                internalLinkCandidateService.getTop2SimilarInternalLinks(userId, curationId);
+        return ResponseEntity.ok(result);
+    }
 }
