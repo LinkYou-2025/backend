@@ -44,10 +44,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,8 +87,8 @@ public class LinkuServiceImpl implements LinkuService {
         String normalizedLink = UrlUtils.normalizeUrl(dto.getLinku());
 
         // 영상 링크 차단
-        if (!isValidUrl(normalizedLink)) {
-            throw new GeneralException(ErrorStatus._LINKU_INVALID_URL);
+        if (isVideoLink(normalizedLink)) {
+            throw new GeneralException(ErrorStatus._LINKU_VIDEO_NOT_ALLOWED);
         }
 
         // 유효하지 않은 링크 차단
@@ -242,18 +239,28 @@ public class LinkuServiceImpl implements LinkuService {
         }
     }
     private boolean isValidUrl(String url) {
+        // 1. URL 형식 문법 검사
+        try {
+            new URL(url);
+        } catch (MalformedURLException e) {
+            return false;
+        }
+
+        // 2. HTTP GET 요청으로 실제 존재 여부 검사 (HEAD보다 실패 확률 적음)
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestMethod("HEAD"); // 본문 없이 빠르게 존재 여부 확인
-            connection.setConnectTimeout(3000); // 3초 제한
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(3000); // 3초 타임아웃
             connection.setReadTimeout(3000);
+            connection.setInstanceFollowRedirects(true); // 리다이렉트 허용
 
             int responseCode = connection.getResponseCode();
-            return responseCode >= 200 && responseCode < 400; // 2xx or 3xx는 유효
+            return responseCode >= 200 && responseCode < 400; // 2xx,3xx 정상 판단
         } catch (Exception e) {
             return false;
         }
     }
+
 
     @Override
     @Transactional
