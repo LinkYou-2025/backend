@@ -86,8 +86,7 @@ public class LinkToImageService {
     /**
      * 전체 플로우
      */
-    public String getRelatedImageFromUrl(String url) {
-        String title = extractTitle(url);
+    public String getRelatedImageFromUrl(String url, String title) {
         if (title != null && !title.isEmpty()) {
             String img = searchFirstDirectImageUrl(title);
             if (img != null) return img;

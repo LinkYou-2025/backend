@@ -149,7 +149,7 @@ public class LinkuServiceImpl implements LinkuService {
             imageUrl = AwsS3Converter.toImageUrl(image, awsS3Service);
         } else {
             // 링크로 대표 이미지 추출 저장 실패 시 null로 저장
-            imageUrl = linkToImageService.getRelatedImageFromUrl(dto.getLinku());
+            imageUrl = linkToImageService.getRelatedImageFromUrl(linku.getLinku(),linku.getTitle());
         }
 
         //usersLinku생성
