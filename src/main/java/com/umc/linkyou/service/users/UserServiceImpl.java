@@ -6,6 +6,7 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.UserRefreshToken;
 import com.umc.linkyou.domain.enums.Gender;
 import com.umc.linkyou.domain.folder.Fcolor;
 import com.umc.linkyou.domain.folder.Folder;
@@ -16,10 +17,7 @@ import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
-import com.umc.linkyou.repository.EmailRepository;
-import com.umc.linkyou.repository.UserQueryRepository;
-import com.umc.linkyou.repository.FolderRepository;
-import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.*;
 import com.umc.linkyou.repository.categoryRepository.UsersCategoryColorRepository;
 import com.umc.linkyou.repository.classification.InterestRepository;
 import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
@@ -31,6 +29,7 @@ import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
 //import io.swagger.v3.oas.annotations.servers.Server;
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,9 +78,7 @@ public class UserServiceImpl implements UserService {
 
     private final UsersCategoryColorRepository usersCategoryColorRepository;
 
-
-    @Value("${auth-code-expiration-millis}")
-    private long authCodeExpirationMillis;
+    private final UserRefreshTokenRepository userRefreshTokenRepository;
 
     @Override
     @Transactional
@@ -162,6 +159,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponseDTO.LoginResultDTO loginUser(UserRequestDTO.LoginRequestDTO request) {
         Users user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new UserHandler(ErrorStatus._LOGIN_FAILED));
@@ -176,8 +174,29 @@ public class UserServiceImpl implements UserService {
         );
 
         String accessToken = jwtTokenProvider.generateToken(authentication);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+        // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가
+        userRefreshTokenRepository.findByUserId(user.getId())
+                .ifPresentOrElse(
+                        it -> it.updateRefreshToken(jwtTokenProvider.normalizeStrict(refreshToken)),
+                        () -> userRefreshTokenRepository.save(new UserRefreshToken(user, jwtTokenProvider.normalizeStrict(refreshToken)))
+                );
+        return UserConverter.toLoginResultDTO(user, accessToken, refreshToken);
+    }
 
-        return UserConverter.toLoginResultDTO(user, accessToken);
+    public String reissueRefreshToken(String refreshToken) {
+        if(refreshToken == null || refreshToken.isEmpty()) {
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        }
+        // 리프레시 토큰 유효성 검사
+        jwtTokenProvider.validateRefreshToken(refreshToken);
+
+        // 2. RefreshToken에서 email 추출
+        Claims claims = jwtTokenProvider.validateAndParseRefresh(refreshToken).getBody();
+        String email = claims.getSubject();
+
+        // 3. AccessToken 생성
+        return jwtTokenProvider.createAccessToken(email);
     }
 
     @Override
