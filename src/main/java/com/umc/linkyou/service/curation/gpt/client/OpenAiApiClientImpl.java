@@ -18,6 +18,8 @@ public class OpenAiApiClientImpl implements OpenAiApiClient {
     @Value("${openai.api.key}")
     private String apiKey;
 
+    private final ObjectMapper objectMapper;
+
     private final WebClient webClient = WebClient.builder()
             .baseUrl("https://api.openai.com/v1/chat/completions")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -40,13 +42,8 @@ public class OpenAiApiClientImpl implements OpenAiApiClient {
                 .bodyToMono(String.class)
                 .block();
 
-        String refinedJson = extractContentFromResponse(rawResponse);
-        System.out.println("✅ 정제된 응답: " + refinedJson);
-
-        return refinedJson;
+        return extractContentFromResponse(rawResponse);
     }
-
-    private final ObjectMapper objectMapper;
 
     private String extractContentFromResponse(String json) {
         try {
@@ -56,21 +53,10 @@ public class OpenAiApiClientImpl implements OpenAiApiClient {
                     .get(0)
                     .path("message")
                     .path("content")
-                    .asText(null); // content가 없으면 null
+                    .asText(null);
         } catch (Exception e) {
             System.out.println("❌ GPT 응답 파싱 실패: " + e.getMessage());
             return null;
         }
     }
-
-
-//    // GPT 응답 중 content 부분만 파싱
-//    private String extractContentFromResponse(String json) {
-//        int start = json.indexOf("\"content\":\"");
-//        if (start == -1) return null;
-//        start += 12;
-//        int end = json.indexOf("\"", start);
-//        if (end == -1) return null;
-//        return json.substring(start, end).replace("\\n", "").trim();
-//    }
 }
