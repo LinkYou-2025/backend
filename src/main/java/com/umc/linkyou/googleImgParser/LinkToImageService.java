@@ -24,8 +24,8 @@ public class LinkToImageService {
                     .get();
             String ogTitle = doc.select("meta[property=og:title]").attr("content");
             if (ogTitle != null && !ogTitle.isEmpty())
-                return ogTitle;
-            return doc.title();
+                return ogTitle.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\\s]", "");  // 특수문자 모두 삭제
+            return doc.title().replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\\s]", "");  // 특수문자 모두 삭제
         } catch (Exception e) {
             return null;
         }

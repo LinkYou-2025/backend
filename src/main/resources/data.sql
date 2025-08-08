@@ -1,3 +1,35 @@
+-- domain 테이블에 UNIQUE 제약조건 추가 (이미 있다면 생략 가능)
+ALTER TABLE domain
+    ADD CONSTRAINT uq_domain_tail UNIQUE (domain_tail);
+
+-- domain 데이터 삽입 (중복시 아무 변경 없이 넘어감)
+INSERT INTO domain (domain_id, domain_tail, image_url, name) VALUES
+    (1, 'invalid', NULL, 'invalid'),
+    (2, 'blog.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/46f73f7b-7a3b-4daa-a19a-e78e808c56ae.png', 'blog.naver'),
+    (3, 'cafe.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/382fd711-bc04-4185-8174-cff8546ec85e.png', 'cafe.naver'),
+    (4, 'kin.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/a2204494-8f68-41c5-8fc9-494f0328ed64.png', 'kin.naver'),
+    (5, 'shopping.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/32d11801-e291-436e-9c2a-e755d2517d20.png', 'shopping.naver'),
+    (6, 'github.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/a5bfcf0c-be33-4c18-9773-c75601806feb.png', 'github'),
+    (7, 'linkedin.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/3eb0fb2b-3edb-41c9-a256-3f9dfe19ce48.png', 'linkedin'),
+    (8, 'tistory.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/e603a485-e147-46fc-8831-0064604b7868.png', 'tistory'),
+    (9, 'google.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/222e6458-2bbd-47a1-8154-c911b059cc89.png', 'google'),
+    (10, 'nytimes.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/0d02a4f3-f447-426f-8dfc-803973507f3d.png', 'nytimes'),
+    (11, 'brunch.co.kr', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/d6adf9f7-344c-4cec-8cac-7e64f12d8af0.png', 'brunch'),
+    (12, 'velog.io', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/ef86fa27-2b0a-421b-b51c-ee881cf45cf7.png', 'velog'),
+    (13, 'daum.net', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/7d1e7dc0-36dd-4b9e-a593-e9a6045d2dca.png', 'daum'),
+    (14, 'jobkorea.co.kr', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/d56fa67f-d64e-4f88-a159-c6f421297a50.png', 'jobkorea'),
+    (15, 'wanted.co.kr', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/dd7b199e-818f-4118-8410-637d15100df2.png', 'wanted'),
+    (16, 'musinsa.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/cb230106-0d22-4488-ac45-bac1546a6fa2.png', 'musinsa'),
+    (17, '11st.co.kr', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/df7f17b8-80b3-4cb3-96bb-5c5048953ed7.png', '11st'),
+    (18, 'instagram.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/d4906426-cf6e-4480-8b06-009167720b7f.png', 'instagram'),
+    (19, 'twitter.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/e07e2ced-7f1c-4a3d-a545-04066eced0e0.png', 'twitter'),
+    (20, 'facebook.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/91eb63c2-46b1-46f0-a28c-449fb567b408.png', 'facebook'),
+    (21, 'naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/81d40a80-1500-422f-b8c4-6748d3a55ca3.png', 'naver')
+    ON DUPLICATE KEY UPDATE domain_id = domain_id;
+
+
+
+
 INSERT INTO fcolor
 (fcolor_id, color_name, color_code1, color_code2, color_code3, color_code4)
 VALUES
