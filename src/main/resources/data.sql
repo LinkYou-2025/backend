@@ -477,7 +477,7 @@ INSERT INTO situation_job (situation_job_id, situation_id, job_id) VALUES
     (41,41,6),(42,42,6),(43,43,6),(44,44,6),(45,45,6),(46,46,6),(47,47,6),(48,48,6)
     ON DUPLICATE KEY UPDATE situation_id = situation_id;
 
-INSERT INTO situation_category (situation_category_id, situation_id, category_id) VALUES
+INSERT INTO situation_category (id, situation_id, category_id) VALUES
       (1, 1, 1), (2, 1, 14), (3, 1, 11),
       (4, 2, 3), (5, 2, 5), (6, 2, 10),
       (7, 3, 14), (8, 3, 15),
