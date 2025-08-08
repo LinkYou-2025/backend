@@ -27,6 +27,7 @@ public class UserResponseDTO {
     public static class LoginResultDTO{
         Long userId;
         String accessToken;
+        String refreshToken; // 리프레시 토큰
         String status;
         LocalDateTime inactiveDate;
     }

@@ -6,6 +6,7 @@ import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.JwtTokenProvider;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.EmailVerification;
+import com.umc.linkyou.domain.UserRefreshToken;
 import com.umc.linkyou.domain.enums.Gender;
 import com.umc.linkyou.domain.folder.Fcolor;
 import com.umc.linkyou.domain.folder.Folder;
@@ -16,10 +17,7 @@ import com.umc.linkyou.domain.classification.Purposes;
 import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.mapping.folder.UsersCategoryColor;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
-import com.umc.linkyou.repository.EmailRepository;
-import com.umc.linkyou.repository.UserQueryRepository;
-import com.umc.linkyou.repository.FolderRepository;
-import com.umc.linkyou.repository.UserRepository;
+import com.umc.linkyou.repository.*;
 import com.umc.linkyou.repository.categoryRepository.UsersCategoryColorRepository;
 import com.umc.linkyou.repository.classification.InterestRepository;
 import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
@@ -79,6 +77,7 @@ public class UserServiceImpl implements UserService {
 
     private final UsersCategoryColorRepository usersCategoryColorRepository;
 
+    private final UserRefreshTokenRepository userRefreshTokenRepository;
 
     @Value("${auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
@@ -176,8 +175,14 @@ public class UserServiceImpl implements UserService {
         );
 
         String accessToken = jwtTokenProvider.generateToken(authentication);
-
-        return UserConverter.toLoginResultDTO(user, accessToken);
+        String refreshToken = jwtTokenProvider.createRefreshToken();
+        // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가
+        userRefreshTokenRepository.findByUserId(user.getId())
+                .ifPresentOrElse(
+                        it -> it.updateRefreshToken(refreshToken),
+                        () -> userRefreshTokenRepository.save(new UserRefreshToken(user, refreshToken))
+                );
+        return UserConverter.toLoginResultDTO(user, accessToken, refreshToken);
     }
 
     @Override
