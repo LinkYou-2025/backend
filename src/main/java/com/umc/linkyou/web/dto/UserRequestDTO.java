@@ -73,4 +73,13 @@ public class UserRequestDTO {
         private List<String> purposes;              // 링크 활용 목적
         private List<String> interests;             // 관심 콘텐츠
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteReasonDTO{
+        @Schema(example = "회원탈퇴 이유에 대한 상세설명")
+        private String reason;
+    }
 }

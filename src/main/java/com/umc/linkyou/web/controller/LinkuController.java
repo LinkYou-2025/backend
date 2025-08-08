@@ -2,19 +2,20 @@ package com.umc.linkyou.web.controller;
 
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.converter.LinkuConverter;
-import com.umc.linkyou.service.LinkuService;
-import com.umc.linkyou.service.UserService;
-import com.umc.linkyou.web.dto.LinkuRequestDTO;
-import com.umc.linkyou.web.dto.LinkuResponseDTO;
-import jakarta.validation.Valid;
+import com.umc.linkyou.service.Linku.LinkuService;
+import com.umc.linkyou.service.Linku.SearchService;
+import com.umc.linkyou.web.dto.QuickSearchDto;
+import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
+import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,8 @@ import java.util.List;
 public class LinkuController {
 
     private final LinkuService linkuService;
+
+    private final SearchService searchService;
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<LinkuResponseDTO.LinkuResultDTO> createLinku(
@@ -104,5 +107,31 @@ public class LinkuController {
         return ResponseEntity.ok(ApiResponse.onSuccess("링크 수정에 성공했습니다.",result));
     } //링큐 수정하기
 
+    @GetMapping("/recommend")
+    public ResponseEntity<ApiResponse<List<LinkuResponseDTO.LinkuSimpleDTO>>> recommendLinku(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long situationId,
+            @RequestParam Long emotionId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(),
+                            ErrorStatus._INVALID_TOKEN.getMessage(),
+                            null));
+        }
+        Long userId = userDetails.getUsers().getId();
+        return linkuService.recommendLinku(userId, situationId, emotionId, page, size);
+    }//linku 추천 내부로
 
+    @GetMapping("/api/search/quick")
+    public ApiResponse<QuickSearchDto.QuickSearchResult> quickSearch(
+            @RequestParam String keyword,
+            @RequestParam Long userId
+    ) {
+        QuickSearchDto.QuickSearchResult result = searchService.quickSearch(keyword, userId);
+
+        return ApiResponse.of(SuccessStatus._OK, result);
+    }
 }

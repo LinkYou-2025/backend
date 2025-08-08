@@ -3,20 +3,21 @@ package com.umc.linkyou.web.controller;
 import com.umc.linkyou.apiPayload.ApiResponse;
 import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
 import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
-import com.umc.linkyou.apiPayload.exception.handler.UserHandler;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.converter.UserConverter;
 import com.umc.linkyou.domain.Users;
-import com.umc.linkyou.service.UserService;
+import com.umc.linkyou.service.users.UserService;
 import com.umc.linkyou.web.dto.EmailVerificationResponse;
 import com.umc.linkyou.web.dto.UserRequestDTO;
 import com.umc.linkyou.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/users")
@@ -46,7 +47,7 @@ public class UserController {
     }
 
     // 이메일 인증 코드 전송
-    @PostMapping("emails/code")
+    @PostMapping("/emails/code")
     public ApiResponse<String> sendCode(@RequestParam("email") @Valid String email) {
         userService.sendCode(email);
         return ApiResponse.of(SuccessStatus._VERIFICATION_CODE_SENT, "이메일로 인증 코드가 전송되었습니다.");
@@ -102,13 +103,15 @@ public class UserController {
     }
 
     //회원 탈퇴
-    @DeleteMapping("/inactive")
-    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    @PostMapping("/inactive")
+    public ApiResponse<UserResponseDTO.withDrawalResultDTO> withdrawMe(@AuthenticationPrincipal CustomUserDetails userDetails
+     ,@RequestBody UserRequestDTO.DeleteReasonDTO deleteReasonDTO
+    ) {
         if (userDetails == null) {
             return ApiResponse.onFailure(ErrorStatus._INVALID_TOKEN.getCode(), ErrorStatus._INVALID_TOKEN.getMessage(), null);
         }
         Long userId = userDetails.getUsers().getId();
-        Users user = userService.withdrawUser(userId);
+        Users user = userService.withdrawUser(userId,deleteReasonDTO);
         return ApiResponse.onSuccess(UserConverter.toWithDrawalResultDTO(user));
     }
 

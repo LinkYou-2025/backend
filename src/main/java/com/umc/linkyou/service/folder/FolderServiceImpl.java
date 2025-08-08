@@ -1,13 +1,19 @@
 package com.umc.linkyou.service.folder;
 
 import com.umc.linkyou.converter.FolderConverter;
+import com.umc.linkyou.domain.Linku;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.folder.Folder;
+import com.umc.linkyou.domain.mapping.LinkuFolder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
 import com.umc.linkyou.repository.FolderRepository;
 import com.umc.linkyou.repository.UserRepository;
-import com.umc.linkyou.repository.UsersFolderRepository.UsersFolderRepository;
+import com.umc.linkyou.repository.mapping.linkuFolderRepository.LinkuFolderRepository;
+import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.web.dto.folder.*;
+import com.umc.linkyou.web.dto.folder.linku.FolderLinkusResponseDTO;
+import com.umc.linkyou.web.dto.folder.linku.FolderSummaryDTO;
+import com.umc.linkyou.web.dto.folder.linku.LinkuSummaryDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +32,7 @@ public class FolderServiceImpl implements FolderService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
     private final UsersFolderRepository usersFolderRepository;
+    private final LinkuFolderRepository linkuFolderRepository;
     private final FolderConverter folderConverter;
 
     // 폴더 생성
@@ -135,6 +143,18 @@ public class FolderServiceImpl implements FolderService {
         return dto;
     }
 
+    // 중분류 폴더 목록 조회
+    public List<FolderListResponseDTO> getParentFolders(Long userId) {
+        List<Folder> parentFolders = usersFolderRepository.findParentFolders(userId);
+
+        return parentFolders.stream()
+                .map(folder -> FolderListResponseDTO.builder()
+                        .folderId(folder.getFolderId())
+                        .folderName(folder.getFolderName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     // 자식 폴더 목록 조회
     public List<FolderListResponseDTO> getSubFolders(Long userId, Long parentFolderId) {
         List<Folder> subFolders = usersFolderRepository.searchFolders(userId, null, parentFolderId, null, null, false);
@@ -151,10 +171,57 @@ public class FolderServiceImpl implements FolderService {
     // 북마크 설정/해제
     @Transactional
     public FolderResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked) {
-        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId);
+        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId).orElseThrow(() -> new IllegalArgumentException("해당 유저의 북마크 정보가 존재하지 않습니다."));
 
         usersFolder.setIsBookmarked(isBookmarked);
 
         return folderConverter.toFolderResponseDTO(usersFolder.getFolder());
+    }
+
+    // 폴더 내부 링크, 폴더 목록 조회
+    public FolderLinkusResponseDTO getFolderLinkus(Long userId, Long folderId, int limit, String cursor) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더입니다."));
+
+        List<Folder> subFolders = folderRepository.findByParentFolder_FolderId(folderId);
+        List<FolderSummaryDTO> subfolderDtos = subFolders.stream()
+                .map(f -> {
+                    FolderSummaryDTO dto = new FolderSummaryDTO();
+                    dto.setFolderId(f.getFolderId());
+                    dto.setFolderName(f.getFolderName());
+                    return dto;
+                }).toList();
+
+        // 커서: 없으면 Long.MAX_VALUE
+        Long cursorId = (cursor == null) ? Long.MAX_VALUE : Long.parseLong(cursor);
+
+        // 링크 매핑(폴더 내부의 링크만) → LinkuFolder 리스트 반환 받아야 함
+        List<LinkuFolder> linkuFolders = linkuFolderRepository.findByFolder(folder);
+        List<Linku> linkus = linkuFolders.stream()
+                .map(lf -> lf.getUsersLinku().getLinku())
+                .filter(linku -> linku.getLinkuId() < cursorId)
+                .sorted(Comparator.comparing(Linku::getLinkuId).reversed())
+                .limit(limit)
+                .toList();
+
+        List<LinkuSummaryDTO> linkDtos = linkus.stream().map(link -> {
+            LinkuSummaryDTO dto = new LinkuSummaryDTO();
+            dto.setLinkuId(link.getLinkuId());
+            dto.setTitle(link.getTitle());
+            dto.setUrl(link.getLinku());
+            dto.setCreatedAt(link.getCreatedAt().toString());
+            return dto;
+        }).toList();
+
+        String newCursor = (linkus.size() == limit)
+                ? String.valueOf(linkus.get(linkus.size()-1).getLinkuId())
+                : null;
+
+        FolderLinkusResponseDTO resp = new FolderLinkusResponseDTO();
+        resp.setFolders(subfolderDtos);
+        resp.setLinks(linkDtos);
+        resp.setNextCursor(newCursor);
+
+        return resp;
     }
 }

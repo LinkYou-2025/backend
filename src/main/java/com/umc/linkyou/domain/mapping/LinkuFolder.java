@@ -1,8 +1,6 @@
 package com.umc.linkyou.domain.mapping;
 
 import com.umc.linkyou.domain.folder.Folder;
-import com.umc.linkyou.domain.Linku;
-import com.umc.linkyou.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

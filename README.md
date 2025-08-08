@@ -1,4 +1,21 @@
 # backend-server
+LinkU 백엔드 레포지토리 입니다.
+
+**✅ 진행 사항 확인**
+
+- **Notion**에서 자세한 진행사항 보러가기 -> 
+  [![Notion](https://img.shields.io/badge/Notion-000000?style=flat-square&logo=notion&logoColor=white)](https://sapphire-lamprey-5db.notion.site/1f393020f65580249c69d231b96abbec?source=copy_link)
+<br>
+
+### 💙 팀원 소개
+
+|장서원|김하진|나현주|조효림|
+|:---:|:---:|:---:|:---:|
+|<img src="https://github.com/user-attachments/assets/65b56c2f-15f4-4dcd-9871-ac4656773441" width="300" height="230">|<img src="https://github.com/Hajin99.png" width="300" height="230">|<img src="https://github.com/HyeonJooooo.png" width="300" height="230">|<img src="https://github.com/hyorim-jo.png" width="300" height="230">|
+|[@oculo0204](https://github.com/oculo0204)|[@Hajin99](https://github.com/Hajin99)|[@HyeonJooooo](https://github.com/HyeonJooooo)|[@hyorim-jo](https://github.com/hyorim-jo)|
+
+<br/>
+
 
 ## 📌 Branch 전략 ##
 ## Branch

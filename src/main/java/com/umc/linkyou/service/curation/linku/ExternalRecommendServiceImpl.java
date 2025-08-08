@@ -20,7 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.umc.linkyou.service.LinkuServiceImpl.extractDomainTail;
+import static com.umc.linkyou.service.Linku.LinkuServiceImpl.extractDomainTail;
+
 
 @Service
 @RequiredArgsConstructor
