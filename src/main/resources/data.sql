@@ -1,6 +1,4 @@
--- domain 테이블에 UNIQUE 제약조건 추가 (이미 있다면 생략 가능)
-ALTER TABLE domain
-    ADD CONSTRAINT uq_domain_tail UNIQUE (domain_tail);
+
 
 -- domain 데이터 삽입 (중복시 아무 변경 없이 넘어감)
 INSERT INTO domain (domain_id, domain_tail, image_url, name) VALUES
