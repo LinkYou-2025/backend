@@ -22,7 +22,7 @@ public interface FolderService {
     List<FolderListResponseDTO> getSubFolders(Long userId, Long parentFolderId);
 
     // 북마크 설정/해제
-    FolderResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked);
+    BookmarkUpdateResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked);
 
     // 폴더 내부 링크, 폴더 목록 조회
     FolderLinkusResponseDTO getFolderLinkus(Long userId, Long folderId, int limit, String cursor);

@@ -1,5 +1,7 @@
 package com.umc.linkyou.service.folder;
 
+import com.umc.linkyou.apiPayload.code.status.ErrorStatus;
+import com.umc.linkyou.apiPayload.exception.GeneralException;
 import com.umc.linkyou.converter.FolderConverter;
 import com.umc.linkyou.domain.Linku;
 import com.umc.linkyou.domain.classification.Category;
@@ -43,11 +45,11 @@ public class FolderServiceImpl implements FolderService {
 
         // 부모 카테고리 조회
         if (parent == null) {
-            throw new IllegalArgumentException("부모 폴더가 없습니다.");
+            throw new GeneralException(ErrorStatus._FOLDER_PARENT_NOT_FOUND);
         }
         Category category = parent.getCategory();
         if (category == null) {
-            throw new IllegalArgumentException("카테고리가 없습니다.");
+            throw new GeneralException(ErrorStatus._FOLDER_CATEGORY_NOT_FOUND);
         }
 
         // 폴더 테이블에 저장
@@ -81,12 +83,12 @@ public class FolderServiceImpl implements FolderService {
     @Transactional
     public FolderResponseDTO updateFolder(Long userId, Long folderId, FolderUpdateRequestDTO req) {
         // 폴더 조회
-        Folder folder = folderRepository.findById(folderId).orElseThrow(() -> new IllegalArgumentException("폴더 없음"));
+        Folder folder = folderRepository.findById(folderId).orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
         // 주인 여부 확인
         boolean isOwner = usersFolderRepository.existsFolderOwner(userId, folderId);
         if (!isOwner) {
-            throw new AccessDeniedException("삭제 권한이 없습니다.");
+            throw new GeneralException(ErrorStatus._FOLDER_UPDATE_FORBIDDEN);
         }
 
         if (req.getFolderName() != null) folder.setFolderName(req.getFolderName());
@@ -99,12 +101,12 @@ public class FolderServiceImpl implements FolderService {
     @Transactional
     public FolderResponseDTO deleteFolder(Long userId, Long folderId) {
         // 폴더 조회
-        Folder folder = folderRepository.findById(folderId).orElseThrow(() -> new IllegalArgumentException("폴더 없음"));
+        Folder folder = folderRepository.findById(folderId).orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
         // 주인 여부 확인
         boolean isOwner = usersFolderRepository.existsFolderOwner(userId, folderId);
         if (!isOwner) {
-            throw new AccessDeniedException("삭제 권한이 없습니다.");
+            throw new GeneralException(ErrorStatus._FOLDER_DELETE_FORBIDDEN);
         }
 
         folderRepository.delete(folder);
@@ -124,17 +126,17 @@ public class FolderServiceImpl implements FolderService {
 
         // 중분류부터 재귀적로 트리 구성
         return parentChildMap.getOrDefault(0L, new ArrayList<>()).stream()
-                .map(folder -> buildTreeFromMap(folder, parentChildMap))
+                .map(folder -> buildTreeFromMap(folder, parentChildMap, userId))
                 .collect(Collectors.toList());
     }
 
-    private FolderTreeResponseDTO buildTreeFromMap(Folder folder, Map<Long, List<Folder>> parentChildMap) {
-        FolderTreeResponseDTO dto = folderConverter.toFolderTreeDTO(folder);
+    private FolderTreeResponseDTO buildTreeFromMap(Folder folder, Map<Long, List<Folder>> parentChildMap, Long userId) {
+        FolderTreeResponseDTO dto = folderConverter.toFolderTreeDTO(folder, userId);
 
         List<Folder> childFolders = parentChildMap.get(folder.getFolderId());
         if (childFolders != null && !childFolders.isEmpty()) {
             List<FolderTreeResponseDTO> childDTOs = childFolders.stream()
-                    .map(child -> buildTreeFromMap(child, parentChildMap))
+                    .map(child -> buildTreeFromMap(child, parentChildMap, userId))
                     .collect(Collectors.toList());
             dto.setChildren(childDTOs);
         } else {
@@ -145,12 +147,13 @@ public class FolderServiceImpl implements FolderService {
 
     // 중분류 폴더 목록 조회
     public List<FolderListResponseDTO> getParentFolders(Long userId) {
-        List<Folder> parentFolders = usersFolderRepository.findParentFolders(userId);
+        List<UsersFolder> parentFolders = usersFolderRepository.findParentFolders(userId);
 
         return parentFolders.stream()
-                .map(folder -> FolderListResponseDTO.builder()
-                        .folderId(folder.getFolderId())
-                        .folderName(folder.getFolderName())
+                .map(usersFolder -> FolderListResponseDTO.builder()
+                        .folderId(usersFolder.getFolder().getFolderId())
+                        .folderName(usersFolder.getFolder().getFolderName())
+                        .isBookmarked(usersFolder.getIsBookmarked())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -170,18 +173,21 @@ public class FolderServiceImpl implements FolderService {
 
     // 북마크 설정/해제
     @Transactional
-    public FolderResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked) {
-        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId).orElseThrow(() -> new IllegalArgumentException("해당 유저의 북마크 정보가 존재하지 않습니다."));
+    public BookmarkUpdateResponseDTO updateBookmark(Long userId, Long folderId, Boolean isBookmarked) {
+        UsersFolder usersFolder = usersFolderRepository.findByUserIdAndFolderId(userId, folderId).orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_BOOKMARK_NOT_FOUND));
 
         usersFolder.setIsBookmarked(isBookmarked);
 
-        return folderConverter.toFolderResponseDTO(usersFolder.getFolder());
+        return BookmarkUpdateResponseDTO.builder()
+                .folderId(usersFolder.getFolder().getFolderId())
+                .isBookmarked(usersFolder.getIsBookmarked())
+                .build();
     }
 
     // 폴더 내부 링크, 폴더 목록 조회
     public FolderLinkusResponseDTO getFolderLinkus(Long userId, Long folderId, int limit, String cursor) {
         Folder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._FOLDER_NOT_FOUND));
 
         List<Folder> subFolders = folderRepository.findByParentFolder_FolderId(folderId);
         List<FolderSummaryDTO> subfolderDtos = subFolders.stream()

@@ -18,7 +18,7 @@ public interface UsersFolderRepositoryCustom {
 
     Optional<UsersFolder> findByUserIdAndFolderId(Long userId, Long folderId);
 
-    List<Folder> findParentFolders(Long userId);
+    List<UsersFolder> findParentFolders(Long userId);
 
     Optional<Folder> findFolderByUserIdAndFolderName(Long userId, String folderName);
 }

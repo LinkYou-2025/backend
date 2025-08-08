@@ -1,5 +1,7 @@
 package com.umc.linkyou.web.controller;
 
+import com.umc.linkyou.apiPayload.ApiResponse;
+import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.service.category.CategoryService;
 import com.umc.linkyou.web.dto.category.CategoryListResponseDTO;
@@ -23,22 +25,22 @@ public class CategoryController {
     // 카테고리 목록 조회
     @GetMapping
     @Operation(summary = "카테고리 목록 조회")
-    public ResponseEntity<List<CategoryListResponseDTO>> getCategoryList(
+    public ApiResponse<List<CategoryListResponseDTO>> getCategoryList(
     ) {
         List<CategoryListResponseDTO> categoryList = categoryService.getCategories();
-        return ResponseEntity.ok(categoryList);
+        return ApiResponse.of(SuccessStatus._CATEGORY_OK, categoryList);
     }
 
     // 유저 카테고리(중분류 폴더) 색상 수정
     @PutMapping("/{categoryId}/color")
     @Operation(summary = "유저 카테고리(중분류 폴더) 색상 수정")
-    public ResponseEntity<UserCategoryColorResponseDTO> updateUserCategoryColor(
+    public ApiResponse<UserCategoryColorResponseDTO> updateUserCategoryColor(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long categoryId,
             @RequestBody UpdateCategoryColorRequestDTO request
     ) {
         UserCategoryColorResponseDTO userCategoryColor =
                 categoryService.updateUserCategoryColor(userDetails.getUsers().getId(), categoryId, request);
-        return ResponseEntity.ok(userCategoryColor);
+        return ApiResponse.of(SuccessStatus._CATEGORY_COLOR_OK, userCategoryColor);
     }
 }

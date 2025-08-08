@@ -23,7 +23,7 @@ public class UsersFolder extends BaseEntity {
     private Boolean isViewer;
     private Boolean isWriter;
 
-    private Boolean isBookmarked;
+    private Boolean isBookmarked = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

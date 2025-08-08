@@ -91,7 +91,7 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
     }
 
     @Override
-    public List<Folder> findParentFolders(Long userId) {
+    public List<UsersFolder> findParentFolders(Long userId) {
         QUsersFolder usersFolder = QUsersFolder.usersFolder;
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -103,7 +103,7 @@ public class UsersFolderRepositoryImpl implements UsersFolderRepositoryCustom {
         builder.and(usersFolder.folder.parentFolder.isNull());
 
         return queryFactory
-                .select(usersFolder.folder)
+                .select(usersFolder)
                 .from(usersFolder)
                 .where(builder)
                 .fetch();

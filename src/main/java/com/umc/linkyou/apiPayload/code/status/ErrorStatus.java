@@ -47,8 +47,6 @@ public enum ErrorStatus implements BaseErrorCode {
     _EMOTION_NOT_FOUND(HttpStatus.NOT_FOUND, "EMOTION4041", "해당하는 감정을 찾을 수 없습니다."),
     //도메인 관련 에러
     _DOMAIN_NOT_FOUND(HttpStatus.NOT_FOUND, "DOMAIN4041", "해당하는 도메인을 찾을 수 없습니다."),
-    //폴더 관련 에러
-    _FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER4041", "해당하는 폴더를 찾을 수 없습니다."),
 
     //Situation 상황 관련 오류
     _SITUATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Situation4041", "해당하는 상황을 찾을 수 없습니다."),
@@ -57,6 +55,20 @@ public enum ErrorStatus implements BaseErrorCode {
     _RECOMMEND_LINKU_NO_RECOMMENDATION(HttpStatus.BAD_REQUEST, "LINKU4004", "추천할 만한 링크가 없습니다."),
     _RECOMMEND_LINKU_NEW_USER(HttpStatus.BAD_REQUEST, "LINKU4005", "신규 사용자는 추천 기능을 이용할 수 없습니다."),
 
+    // 폴더 관련 오류
+    _FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER404", "해당하는 폴더를 찾을 수 없습니다."),
+    _FOLDER_PARENT_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER_PARENT404", "폴더의 부모 폴더가 없습니다."),
+    _FOLDER_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER_CATEGORY404", "폴더의 카테고리가 없습니다."),
+    _FOLDER_CREATE_DUPLICATE(HttpStatus.CONFLICT, "FOLDER_CATEGORY404", "중복된 폴더명입니다."),
+    _FOLDER_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "FOLDER_UPDATE403", "해당하는 폴더의 수정 권한이 없습니다."),
+    _FOLDER_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "FOLDER_DELETE403", "해당하는 폴더의 삭제 권한이 없습니다."),
+
+    // 공유 폴더 관련 응답
+    _FOLDER_PERMISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER_PERMISSION404", "해당 유저의 폴더 권한 정보를 찾을 수 없습니다."),
+    FOLDER_OWNER_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "FOLDER_OWNER_403", "폴더 주인의 권한은 수정할 수 없습니다."),
+
+    // 북마크 관련 오류
+    _FOLDER_BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER_BOOKMARK404", "해당 유저의 북마크 정보가 존재하지 않습니다."),
     ;
 
     private final HttpStatus httpStatus;

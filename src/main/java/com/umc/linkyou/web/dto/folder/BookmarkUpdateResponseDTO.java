@@ -7,10 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class FolderListResponseDTO {
+public class BookmarkUpdateResponseDTO {
     private Long folderId;
-    private String folderName;
-    private Long parentFolderId;
     private Boolean isBookmarked;
 }
-

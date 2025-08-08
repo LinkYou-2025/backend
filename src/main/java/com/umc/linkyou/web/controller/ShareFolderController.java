@@ -1,5 +1,7 @@
 package com.umc.linkyou.web.controller;
 
+import com.umc.linkyou.apiPayload.ApiResponse;
+import com.umc.linkyou.apiPayload.code.status.SuccessStatus;
 import com.umc.linkyou.config.security.jwt.CustomUserDetails;
 import com.umc.linkyou.service.folder.share.ShareFolderService;
 import com.umc.linkyou.web.dto.folder.share.FolderPermissionRequestDTO;
@@ -24,53 +26,53 @@ public class ShareFolderController {
     // 폴더 공유 (뷰어 권한 설정)
     @PostMapping("/{folderId}")
     @Operation(summary = "폴더 공유 (뷰어 권한 설정)")
-    public ResponseEntity<ShareFolderResponseDTO> shareFolder(
+    public ApiResponse<ShareFolderResponseDTO> shareFolder(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long folderId
     ) {
         ShareFolderRequestDTO request = new ShareFolderRequestDTO();
         request.setUserId(userDetails.getUsers().getId());
         request.setPermission("VIEWER");
-        ShareFolderResponseDTO result = shareFolderService.shareFolder(
+        ShareFolderResponseDTO response = shareFolderService.shareFolder(
                 userDetails.getUsers().getId(), folderId, request);
-        return ResponseEntity.ok(result);
+        return ApiResponse.of(SuccessStatus._FOLDER_SHARE_OK, response);
     }
 
     // 폴더 뷰어 조회
     @GetMapping("/{folderId}/members")
     @Operation(summary = "폴더 뷰어 조회")
-    public ResponseEntity<List<ViewerResponseDTO>> getFolderViewers(
+    public ApiResponse<List<ViewerResponseDTO>> getFolderViewers(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long folderId
     ) {
         List<ViewerResponseDTO> viewers = shareFolderService.getViewers(
                 userDetails.getUsers().getId(), folderId);
-        return ResponseEntity.ok(viewers);
+        return ApiResponse.of(SuccessStatus._FOLDER_MEMBERS_OK, viewers);
     }
 
     // 뷰어, 라이터 권한 수정
     @PutMapping("/{folderId}/members/{userFolderId}")
     @Operation(summary = "폴더 권한 수정")
-    public ResponseEntity<ShareFolderResponseDTO> updateViewerPermission(
+    public ApiResponse<ShareFolderResponseDTO> updateViewerPermission(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long folderId,
             @PathVariable Long userFolderId,
             @Valid @RequestBody FolderPermissionRequestDTO request
     ) {
-        ShareFolderResponseDTO result = shareFolderService.updateViewerPermission(
+        ShareFolderResponseDTO response = shareFolderService.updateViewerPermission(
                 userDetails.getUsers().getId(), folderId, userFolderId, request);
-        return ResponseEntity.ok(result);
+        return ApiResponse.of(SuccessStatus._FOLDER_PERMISSION_OK, response);
     }
 
     // 폴더 비공개 전환
     @PostMapping("/{folderId}/unshare")
     @Operation(summary = "폴더 비공개 전환")
-    public ResponseEntity<ShareFolderResponseDTO> unshareFolder(
+    public ApiResponse<ShareFolderResponseDTO> unshareFolder(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long folderId
     ) {
         // 모든 유저의 (폴더 주인 제외) 뷰어, writer 권한 false
-        ShareFolderResponseDTO result = shareFolderService.unshare(userDetails.getUsers().getId(), folderId);
-        return ResponseEntity.ok(result);
+        ShareFolderResponseDTO response = shareFolderService.unshare(userDetails.getUsers().getId(), folderId);
+        return ApiResponse.of(SuccessStatus._FOLDER_UNSHARE_OK, response);
     }
 }

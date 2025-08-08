@@ -4,12 +4,17 @@ import com.umc.linkyou.domain.Users;
 import com.umc.linkyou.domain.classification.Category;
 import com.umc.linkyou.domain.folder.Folder;
 import com.umc.linkyou.domain.mapping.folder.UsersFolder;
+import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.web.dto.folder.FolderResponseDTO;
 import com.umc.linkyou.web.dto.folder.FolderTreeResponseDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
 @Component
 public class FolderConverter {
+    private final UsersFolderRepository usersFolderRepository;
+
     public FolderResponseDTO toFolderResponseDTO(Folder folder) {
         if (folder == null) {
             return null;
@@ -26,16 +31,23 @@ public class FolderConverter {
                 .build();
     }
 
-    public FolderTreeResponseDTO toFolderTreeDTO(Folder folder) {
+    public FolderTreeResponseDTO toFolderTreeDTO(Folder folder, Long userId) {
         FolderTreeResponseDTO dto = new FolderTreeResponseDTO();
 
         dto.setFolderId(folder.getFolderId());
         dto.setFolderName(folder.getFolderName());
 
+        boolean isBookmarked = usersFolderRepository
+                .findByUserIdAndFolderId(userId, folder.getFolderId())
+                .map(UsersFolder::getIsBookmarked)
+                .orElse(false);
+        dto.setIsBookmarked(isBookmarked);
+
         Category category = folder.getCategory();
         if (category != null) {
             dto.setCategoryId(category.getCategoryId());
         }
+
         return dto;
     }
 
