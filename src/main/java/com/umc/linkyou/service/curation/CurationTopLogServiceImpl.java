@@ -36,11 +36,6 @@ public class CurationTopLogServiceImpl implements CurationTopLogService {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<CurationTopLog> getTop3LogsByCuration(Long curationId) {
-        return curationTopLogRepository.findTop3ByCurationId(curationId);
-    }
-
-    @Override
     public List<String> getTopTagNamesByCuration(Long curationId) {
         return curationTopLogRepository.findTop3ByCurationId(curationId).stream()
                 .map(CurationTopLog::getTagName)

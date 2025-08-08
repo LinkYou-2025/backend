@@ -196,7 +196,7 @@ public class LinkuServiceImpl implements LinkuService {
 
 
     // URL에서 도메인명만 추출 (예: https://blog.naver.com/abc → blog.naver.com)
-    private static String extractDomainTail(String url) {
+    public static String extractDomainTail(String url) {
         try {
             java.net.URI uri = new java.net.URI(url);
             String domain = uri.getHost();

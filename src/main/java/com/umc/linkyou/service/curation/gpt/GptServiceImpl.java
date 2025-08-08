@@ -1,10 +1,15 @@
 package com.umc.linkyou.service.curation.gpt;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc.linkyou.service.curation.gpt.client.OpenAiApiClient;
 import com.umc.linkyou.web.dto.curation.GptMentResponse;
+import com.umc.linkyou.web.dto.curation.RecommendedLinkResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,21 +40,97 @@ public class GptServiceImpl implements GptService {
         );
 
         try {
-            String rawJson = openAiApiClient.callGpt(prompt);  // → content만 반환됨 (아직 백틱 있음 가능성 有)
-
-            System.out.println("✅ GPT 응답 원문: " + rawJson);
-
-            // 백틱 블록 제거
-            String cleaned = rawJson.replaceAll("(?s)```json\\s*", "")
-                    .replaceAll("(?s)```", "")
-                    .trim();
-
-            System.out.println("✅ 정제된 응답: " + cleaned);
+            String rawJson = openAiApiClient.callGpt(prompt);
+            String cleaned = extractJsonObject(rawJson);
 
             return objectMapper.readValue(cleaned, GptMentResponse.class);
         } catch (Exception e) {
-            System.out.println("❌ GPT 응답 파싱 실패: " + e.getMessage());
+            System.out.println("❌ GPT 멘트 파싱 실패: " + e.getMessage());
             return null;
         }
     }
+
+    @Override
+    public List<RecommendedLinkResponse> generateExternalRecommendationsFromContext(
+            List<String> recentUrls, List<String> tagNames, int limit) {
+
+        String prompt = String.format(
+                "아래는 사용자가 최근 저장한 콘텐츠 링크입니다:\n%s\n\n" +
+                        "또한, 다음은 사용자에게 중요한 태그입니다: %s\n\n" +
+                        "이 정보를 기반으로, 사용자가 아직 보지 않은 새로운 웹 링크를 추천해주세요.\n" +
+                        "※ 주의: 위에 제공된 링크(URL)는 절대 다시 사용하지 마세요.\n" +
+                        "※ 반드시 실제 존재하는 URL을 제공해주세요. URL은 반드시 실제 존재하는 사이트만 사용하고, 일반적으로 접근 가능한 공개 콘텐츠만 사용하세요.\n\n" +
+                        "결과는 아래와 같은 JSON 배열 형식으로 출력해주세요. (최대 %d개)\n\n" +
+                        "아무 설명도 달지 말고 JSON 배열만 출력해 주세요." +
+                        "[\n" +
+                        "  {\"title\": \"...\", \"url\": \"...\"},\n" +
+                        "  ... 최대 %d개까지\n" +
+                        "]",
+                String.join("\n", recentUrls),
+                String.join(", ", tagNames),
+                limit,
+                limit
+        );
+
+        try {
+            String rawJson = openAiApiClient.callGpt(prompt);
+            String cleaned = extractJsonArray(rawJson);
+
+            List<Map<String, String>> parsed = objectMapper.readValue(cleaned, new TypeReference<>() {});
+
+            return parsed.stream()
+                    .map(item -> RecommendedLinkResponse.builder()
+                            .title(item.get("title"))
+                            .url(item.get("url"))
+                            .domain(null)      // 후처리로 채울 것
+                            .imageUrl(null)    // 후처리로 채울 것
+                            .userLinkuId(null) // 내부 추천이 아님
+                            .build())
+                    .toList();
+
+        } catch (Exception e) {
+            System.out.println("❌ GPT 추천 파싱 실패: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    // ------------------------------
+    // 🔧 JSON 정제 유틸
+    // ------------------------------
+    private String extractJsonObject(String response) {
+        if (response == null) return "{}";
+
+        String noBackticks = response.replaceAll("(?s)```json\\s*", "")
+                .replaceAll("(?s)```", "")
+                .trim();
+
+        int objStart = noBackticks.indexOf("{");
+        int objEnd = noBackticks.lastIndexOf("}") + 1;
+
+        return (objStart != -1 && objEnd > objStart)
+                ? noBackticks.substring(objStart, objEnd)
+                : "{}";
+    }
+
+    private String extractJsonArray(String response) {
+        System.out.println("🧾 GPT 응답 원문:\n" + response);
+
+        if (response == null) return "[]";
+
+        // 백틱과 "```json" 같은 마크다운 문법만 제거, 본문은 유지
+        String cleaned = response.replaceAll("(?s)```json", "")
+                .replaceAll("(?s)```", "")
+                .trim();
+
+        int start = cleaned.indexOf("[");
+        int end = cleaned.lastIndexOf("]") + 1;
+
+        if (start == -1 || end <= start) {
+            System.out.println("❌ JSON 배열 포맷이 아님");
+            return "[]";
+        }
+
+        return cleaned.substring(start, end);
+    }
+
 }
