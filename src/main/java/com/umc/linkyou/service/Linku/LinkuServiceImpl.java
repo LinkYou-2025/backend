@@ -34,6 +34,7 @@ import com.umc.linkyou.repository.mapping.SituationJobRepository;
 import com.umc.linkyou.repository.mapping.UsersLinkuRepository;
 import com.umc.linkyou.repository.usersFolderRepository.UsersFolderRepository;
 import com.umc.linkyou.utils.EmotionSimilarityUtil;
+import com.umc.linkyou.utils.UrlUtils;
 import com.umc.linkyou.web.dto.linku.LinkuInternalDTO;
 import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
@@ -85,9 +86,12 @@ public class LinkuServiceImpl implements LinkuService {
     @Override
     @Transactional
     public LinkuResponseDTO.LinkuResultDTO createLinku(Long userId, LinkuRequestDTO.LinkuCreateDTO dto, MultipartFile image) {
+        // URL 정규화 적용
+        String normalizedLink = UrlUtils.normalizeUrl(dto.getLinku());
+
         // 영상 링크 차단
-        if (isVideoLink(dto.getLinku())) {
-            throw new GeneralException(ErrorStatus._LINKU_VIDEO_NOT_ALLOWED);
+        if (!isValidUrl(normalizedLink)) {
+            throw new GeneralException(ErrorStatus._LINKU_INVALID_URL);
         }
 
         // 유효하지 않은 링크 차단
@@ -95,8 +99,8 @@ public class LinkuServiceImpl implements LinkuService {
             throw new GeneralException(ErrorStatus._LINKU_INVALID_URL);
         }
 
-        // AI 카테고리 분류 시도
-        Long aiCategoryId = openAiCategoryClassifier.classifyCategoryByUrl(dto.getLinku(), categoryRepository.findAll());
+        // AI 카테고리 분류
+        Long aiCategoryId = openAiCategoryClassifier.classifyCategoryByUrl(normalizedLink, categoryRepository.findAll());
 
         Category category = Optional.ofNullable(aiCategoryId)
                 .flatMap(categoryRepository::findById)
@@ -109,20 +113,31 @@ public class LinkuServiceImpl implements LinkuService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND))
                 : emotionRepository.findById(dto.getEmotionId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EMOTION_NOT_FOUND));
-
-        String domainTail = extractDomainTail(dto.getLinku());
         //도메인 가져오기
+        String domainTail = extractDomainTail(normalizedLink);
         Domain domain = (domainTail != null)
                 ? domainRepository.findByDomainTail(domainTail)
                 .orElseGet(() -> domainRepository.findById(DEFAULT_DOMAIN_ID)
                         .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND)))
                 : domainRepository.findById(DEFAULT_DOMAIN_ID)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._DOMAIN_NOT_FOUND));
-        // 1. 제목 크롤링!
-        String crawledTitle = linkToImageService.extractTitle(dto.getLinku());
-        // 2. 링크 생성 (제목 반드시 포함)
-        Linku linku = LinkuConverter.toLinku(dto.getLinku(), category, domain, crawledTitle);
-        linkuRepository.save(linku);
+        //링크 생성
+        Optional<Linku> existingLinkuOpt = linkuRepository.findByLinku(normalizedLink);
+
+        Linku linku = existingLinkuOpt.orElseGet(() -> {
+            // 새로 title 크롤링
+            String crawledTitle = linkToImageService.extractTitle(normalizedLink);
+
+            // 새로 Linku 생성
+            Linku newLinku = Linku.builder()
+                    .linku(normalizedLink)
+                    .category(category)
+                    .domain(domain)
+                    .title(crawledTitle)
+                    .build();
+
+            return linkuRepository.save(newLinku);
+        });
 
         //요청 보낸 사용자 저장
         Users user = userRepository.findById(userId)
