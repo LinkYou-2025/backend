@@ -102,4 +102,10 @@ public class LinkToImageService {
         // 마지막까지 실패 시 null 반환
         return null;
     }
+
+    public String getRelatedImageFromUrl(String url) {
+        String title = extractTitle(url);
+        return getRelatedImageFromUrl(url, title);
+    }
+
 }
