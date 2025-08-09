@@ -11,6 +11,7 @@ import com.umc.linkyou.web.dto.QuickSearchDto;
 import com.umc.linkyou.web.dto.linku.LinkuRequestDTO;
 import com.umc.linkyou.web.dto.linku.LinkuResponseDTO;
 import com.umc.linkyou.web.dto.linku.LinkuSearchSuggestionResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -126,6 +127,10 @@ public class LinkuController {
     }//linku 추천 내부로
 
     // 빠른 검색 (사용자가 저장한 링크 전체 대상)
+    @Operation(
+            summary = "빠른 검색 (사용자 저장 링크 전체 대상)",
+            description = "사용자가 저장한 링크 전체를 대상으로 키워드가 포함된 추천 검색어 목록을 조회합니다."
+    )
     @GetMapping("/search/quick")
     public ApiResponse<List<LinkuSearchSuggestionResponse>> quickSearch(
             @AuthenticationPrincipal CustomUserDetails userDetails,
