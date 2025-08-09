@@ -3,7 +3,7 @@
 -- domain 데이터 삽입 (중복시 아무 변경 없이 넘어감)
 INSERT INTO domain (domain_id, domain_tail, image_url, name) VALUES
     (1, 'invalid', NULL, 'invalid'),
-    (2, 'blog.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/46f73f7b-7a3b-4daa-a19a-e78e808c56ae.png', 'blog.naver'),
+    (2, 'blog.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/416766de-7e9c-4033-9d08-cf56a90f85c3.png', 'blog.naver'),
     (3, 'cafe.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/382fd711-bc04-4185-8174-cff8546ec85e.png', 'cafe.naver'),
     (4, 'kin.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/a2204494-8f68-41c5-8fc9-494f0328ed64.png', 'kin.naver'),
     (5, 'shopping.naver.com', 'https://linku-image-bucket.s3.ap-southeast-2.amazonaws.com/domain/32d11801-e291-436e-9c2a-e755d2517d20.png', 'shopping.naver'),
